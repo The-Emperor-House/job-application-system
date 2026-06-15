@@ -2,13 +2,18 @@ import { createTheme } from "@mui/material/styles";
 
 export const theme = createTheme({
   palette: {
-    primary: { main: "#2e7d32", light: "#4caf50", dark: "#1b5e20", contrastText: "#ffffff" },
-    secondary: { main: "#66bb6a" },
-    background: { default: "#f1f8f0", paper: "#ffffff" },
+    primary: { main: "#1b5e20", light: "#4caf50", dark: "#003212", contrastText: "#ffffff" },
+    secondary: { main: "#37474f" },
+    background: { default: "#ffffff", paper: "#ffffff" },
+    divider: "#e6e8e6",
+    text: { primary: "#1a1f1c", secondary: "#5f6b66" },
   },
-  shape: { borderRadius: 12 },
+  shape: { borderRadius: 10 },
   typography: {
     fontFamily: ["var(--font-noto-sans-thai)", "var(--font-geist-sans)", "Roboto", "Helvetica", "Arial", "sans-serif"].join(","),
+    h4: { fontWeight: 700, letterSpacing: -0.3 },
+    h5: { fontWeight: 700, letterSpacing: -0.2 },
+    h6: { fontWeight: 700 },
   },
   components: {
     MuiButton: {
@@ -18,6 +23,7 @@ export const theme = createTheme({
       },
     },
     MuiAppBar: {
+      defaultProps: { elevation: 0 },
       styleOverrides: {
         root: { backgroundColor: "#ffffff" },
       },
@@ -32,7 +38,7 @@ export const theme = createTheme({
     },
     MuiCard: {
       styleOverrides: {
-        root: { borderColor: "#c8e6c9" },
+        root: { borderColor: "#e6e8e6" },
       },
     },
     MuiChip: {
@@ -42,7 +48,7 @@ export const theme = createTheme({
     },
     MuiOutlinedInput: {
       styleOverrides: {
-        root: { borderRadius: 10 },
+        root: { borderRadius: 8 },
       },
     },
   },
