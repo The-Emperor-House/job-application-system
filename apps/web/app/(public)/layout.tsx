@@ -27,27 +27,27 @@ export default async function PublicLayout({ children }: { children: React.React
           <Stack direction="row" spacing={3} sx={{ alignItems: "center", flex: 1 }}>
             <Stack component={NavLink} href="/" direction="row" spacing={1} sx={{ alignItems: "center", textDecoration: "none", color: "inherit" }}>
               <Box component="img" src="/EMP_Logo.svg" alt="Logo" sx={{ height: 32 }} />
-              <Typography sx={{ fontWeight: 700 }}>Job Application System</Typography>
+              <Typography sx={{ fontWeight: 700 }}>ระบบรับสมัครงาน</Typography>
             </Stack>
             <Typography component={NavLink} href="/" variant="body2" color="text.secondary" sx={{ textDecoration: "none" }}>
-              Open Positions
+              ตำแหน่งงานที่เปิดรับ
             </Typography>
           </Stack>
           <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
             {user ? (
               <>
                 <Button component={NavLink} href={user.role === "APPLICANT" ? "/account" : "/dashboard"} size="small" color="inherit">
-                  {user.role === "APPLICANT" ? "My Account" : "Dashboard"}
+                  {user.role === "APPLICANT" ? "บัญชีของฉัน" : "แดชบอร์ด"}
                 </Button>
                 <LogoutButton />
               </>
             ) : (
               <>
                 <Button component={NavLink} href="/login" size="small" color="inherit">
-                  Log in
+                  เข้าสู่ระบบ
                 </Button>
                 <Button component={NavLink} href="/register" size="small" variant="contained">
-                  Register
+                  ลงทะเบียน
                 </Button>
               </>
             )}
@@ -60,7 +60,7 @@ export default async function PublicLayout({ children }: { children: React.React
       <Box component="footer" sx={{ borderTop: 1, borderColor: "divider", py: 3, mt: "auto" }}>
         <Container maxWidth="md">
           <Typography variant="body2" color="text.secondary" align="center">
-            © {new Date().getFullYear()} Job Application System. All rights reserved.
+            © {new Date().getFullYear()} ระบบรับสมัครงาน สงวนสิทธิ์ทุกประการ
           </Typography>
         </Container>
       </Box>

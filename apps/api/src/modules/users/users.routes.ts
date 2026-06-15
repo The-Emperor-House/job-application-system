@@ -7,6 +7,7 @@ import {
   listDocumentsHandler,
   addDocumentHandler,
   deleteDocumentHandler,
+  listUserDocumentsHandler,
   listUsersHandler,
   updateUserRoleHandler,
   updateUserActiveHandler,
@@ -30,6 +31,7 @@ router.post("/me/documents", authenticateToken, uploadDocument, addDocumentHandl
 router.delete("/me/documents/:id", authenticateToken, deleteDocumentHandler);
 
 router.get("/", ...requireSuperAdmin, listUsersHandler);
+router.get("/:id/documents", ...requireSuperAdmin, listUserDocumentsHandler);
 router.patch("/:id/role", ...requireSuperAdmin, updateUserRoleHandler);
 router.patch("/:id/active", ...requireSuperAdmin, updateUserActiveHandler);
 router.patch("/:id/reset-password", ...requireSuperAdmin, resetUserPasswordHandler);

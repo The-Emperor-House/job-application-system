@@ -54,21 +54,21 @@ export default function JobActions({ jobId, status }: { jobId: number; status: J
 
   const dialogCopy: Record<Exclude<DialogKind, null>, { title: string; body: string; confirmLabel: string; color: "error" | "primary" }> = {
     delete: {
-      title: "Delete job posting?",
-      body: "This will permanently delete the job posting. This cannot be undone.",
-      confirmLabel: "Delete",
+      title: "ลบตำแหน่งงานนี้?",
+      body: "การลบตำแหน่งงานนี้ไม่สามารถย้อนกลับได้",
+      confirmLabel: "ลบ",
       color: "error",
     },
     close: {
-      title: "Close job posting?",
-      body: "Closing will hide this posting from applicants and stop new applications. You can reopen it later.",
-      confirmLabel: "Close posting",
+      title: "ปิดรับสมัครตำแหน่งงานนี้?",
+      body: "การปิดรับสมัครจะซ่อนตำแหน่งงานนี้จากผู้สมัครและหยุดรับใบสมัครใหม่ คุณสามารถเปิดรับสมัครอีกครั้งได้ในภายหลัง",
+      confirmLabel: "ปิดรับสมัคร",
       color: "primary",
     },
     reopen: {
-      title: "Reopen job posting?",
-      body: "Reopening will make this posting visible to applicants again.",
-      confirmLabel: "Reopen posting",
+      title: "เปิดรับสมัครตำแหน่งงานนี้อีกครั้ง?",
+      body: "การเปิดรับสมัครอีกครั้งจะทำให้ผู้สมัครมองเห็นตำแหน่งงานนี้ได้",
+      confirmLabel: "เปิดรับสมัคร",
       color: "primary",
     },
   };
@@ -78,15 +78,15 @@ export default function JobActions({ jobId, status }: { jobId: number; status: J
       <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
         {status === "OPEN" ? (
           <Button size="small" onClick={() => openDialog("close")}>
-            Close
+            ปิดรับสมัคร
           </Button>
         ) : (
           <Button size="small" onClick={() => openDialog("reopen")}>
-            Reopen
+            เปิดรับสมัคร
           </Button>
         )}
         <Button size="small" color="error" onClick={() => openDialog("delete")}>
-          Delete
+          ลบ
         </Button>
       </Stack>
 
@@ -104,10 +104,10 @@ export default function JobActions({ jobId, status }: { jobId: number; status: J
             </DialogContent>
             <DialogActions>
               <Button onClick={closeDialog} disabled={pending}>
-                Cancel
+                ยกเลิก
               </Button>
               <Button onClick={confirm} color={dialogCopy[dialog].color} disabled={pending} variant="contained">
-                {pending ? "Working..." : dialogCopy[dialog].confirmLabel}
+                {pending ? "กำลังดำเนินการ..." : dialogCopy[dialog].confirmLabel}
               </Button>
             </DialogActions>
           </>

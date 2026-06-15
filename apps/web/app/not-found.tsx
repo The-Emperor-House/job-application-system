@@ -16,13 +16,13 @@ export default function NotFound() {
           404
         </Typography>
         <Typography variant="h6" sx={{ mt: 1, mb: 1 }}>
-          Page not found
+          ไม่พบหน้านี้
         </Typography>
         <Typography color="text.secondary" sx={{ mb: 4 }}>
-          The page you&apos;re looking for doesn&apos;t exist or may have been moved.
+          หน้าที่คุณกำลังค้นหาไม่มีอยู่หรืออาจถูกย้ายไปแล้ว
         </Typography>
         <Button component={Link} href="/" variant="contained" size="large">
-          Back to home
+          กลับไปยังหน้าแรก
         </Button>
       </Box>
     </Container>

@@ -33,7 +33,7 @@ export async function uploadAvatarHandler(req: Request, res: Response, next: Nex
   try {
     const file = req.file;
     if (!file) {
-      throw new HttpError(400, "No avatar file provided");
+      throw new HttpError(400, "กรุณาเลือกไฟล์รูปโปรไฟล์");
     }
     res.json(await usersService.uploadAvatar(req.user!.id, file));
   } catch (err) {
@@ -53,12 +53,20 @@ export async function addDocumentHandler(req: Request, res: Response, next: Next
   try {
     const file = req.file;
     if (!file) {
-      throw new HttpError(400, "No file provided");
+      throw new HttpError(400, "กรุณาเลือกไฟล์");
     }
     const { category } = addDocumentSchema.parse(req.body);
     res.status(201).json(
       await usersService.addDocument(req.user!.id, file, category as DocumentCategory | undefined)
     );
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listUserDocumentsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    res.json(await usersService.listDocuments(Number(req.params.id)));
   } catch (err) {
     next(err);
   }

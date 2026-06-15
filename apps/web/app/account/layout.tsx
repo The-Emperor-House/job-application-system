@@ -32,19 +32,19 @@ export default async function AccountLayout({ children }: { children: React.Reac
           <Stack direction="row" spacing={3} sx={{ alignItems: "center", flex: 1 }}>
             <Stack component={NavLink} href="/account" direction="row" spacing={1} sx={{ alignItems: "center", textDecoration: "none", color: "inherit" }}>
               <Box component="img" src="/EMP_Logo.svg" alt="Logo" sx={{ height: 32 }} />
-              <Typography sx={{ fontWeight: 700 }}>My Account</Typography>
+              <Typography sx={{ fontWeight: 700 }}>บัญชีของฉัน</Typography>
             </Stack>
             <Typography component={NavLink} href="/" variant="body2" color="text.secondary" sx={{ textDecoration: "none" }}>
-              Open Positions
+              ตำแหน่งงานที่เปิดรับ
             </Typography>
             <Typography component={NavLink} href="/account/profile" variant="body2" color="text.secondary" sx={{ textDecoration: "none" }}>
-              Profile
+              ข้อมูลส่วนตัว
             </Typography>
             <Typography component={NavLink} href="/account/documents" variant="body2" color="text.secondary" sx={{ textDecoration: "none" }}>
-              Documents
+              เอกสาร
             </Typography>
             <Typography component={NavLink} href="/account/applications" variant="body2" color="text.secondary" sx={{ textDecoration: "none" }}>
-              My Applications
+              ใบสมัครของฉัน
             </Typography>
           </Stack>
           <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>

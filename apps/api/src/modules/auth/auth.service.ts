@@ -41,20 +41,20 @@ const OTP_RESEND_COOLDOWN_MS = 60 * 1000;
 export async function login(email: string, password: string) {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
-    throw new HttpError(401, "Invalid email or password");
+    throw new HttpError(401, "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
   }
 
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) {
-    throw new HttpError(401, "Invalid email or password");
+    throw new HttpError(401, "อีเมลหรือรหัสผ่านไม่ถูกต้อง");
   }
 
   if (!user.isActive) {
-    throw new HttpError(403, "This account has been deactivated", "ACCOUNT_DEACTIVATED");
+    throw new HttpError(403, "บัญชีนี้ถูกปิดใช้งาน", "ACCOUNT_DEACTIVATED");
   }
 
   if (!user.emailVerified) {
-    throw new HttpError(403, "Email not verified", "EMAIL_NOT_VERIFIED");
+    throw new HttpError(403, "ยังไม่ได้ยืนยันอีเมล", "EMAIL_NOT_VERIFIED");
   }
 
   return toAuthResult(user);
@@ -63,7 +63,7 @@ export async function login(email: string, password: string) {
 export async function register(name: string, email: string, password: string) {
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    throw new HttpError(409, "An account with this email already exists");
+    throw new HttpError(409, "มีบัญชีที่ใช้อีเมลนี้อยู่แล้ว");
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
@@ -91,19 +91,19 @@ export async function register(name: string, email: string, password: string) {
 export async function verifyOtp(email: string, otp: string) {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
-    throw new HttpError(404, "Account not found");
+    throw new HttpError(404, "ไม่พบบัญชีนี้");
   }
 
   if (user.emailVerified) {
-    throw new HttpError(400, "Email already verified");
+    throw new HttpError(400, "ยืนยันอีเมลแล้ว");
   }
 
   if (!user.otpCode || !user.otpExpiresAt || user.otpExpiresAt < new Date()) {
-    throw new HttpError(400, "Verification code expired. Please request a new one.");
+    throw new HttpError(400, "รหัสยืนยันหมดอายุ กรุณาขอรหัสใหม่");
   }
 
   if (user.otpAttempts >= MAX_OTP_ATTEMPTS) {
-    throw new HttpError(429, "Too many incorrect attempts. Please request a new code.");
+    throw new HttpError(429, "กรอกรหัสผิดเกินจำนวนที่กำหนด กรุณาขอรหัสใหม่");
   }
 
   if (user.otpCode !== otp) {
@@ -111,7 +111,7 @@ export async function verifyOtp(email: string, otp: string) {
       where: { id: user.id },
       data: { otpAttempts: user.otpAttempts + 1 },
     });
-    throw new HttpError(400, "Invalid verification code");
+    throw new HttpError(400, "รหัสยืนยันไม่ถูกต้อง");
   }
 
   const updated = await prisma.user.update({
@@ -125,17 +125,17 @@ export async function verifyOtp(email: string, otp: string) {
 export async function resendOtp(email: string) {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
-    throw new HttpError(404, "Account not found");
+    throw new HttpError(404, "ไม่พบบัญชีนี้");
   }
 
   if (user.emailVerified) {
-    throw new HttpError(400, "Email already verified");
+    throw new HttpError(400, "ยืนยันอีเมลแล้ว");
   }
 
   if (user.otpExpiresAt) {
     const sentAt = user.otpExpiresAt.getTime() - env.otpExpiresMinutes * 60 * 1000;
     if (Date.now() - sentAt < OTP_RESEND_COOLDOWN_MS) {
-      throw new HttpError(429, "Please wait before requesting a new code");
+      throw new HttpError(429, "กรุณารอสักครู่ก่อนขอรหัสใหม่");
     }
   }
 
@@ -154,7 +154,7 @@ export async function resendOtp(email: string) {
 
 export async function googleAuth(idToken: string) {
   if (!env.googleClientId) {
-    throw new HttpError(500, "Google sign-in is not configured");
+    throw new HttpError(500, "ยังไม่ได้ตั้งค่าการเข้าสู่ระบบด้วย Google");
   }
 
   const ticket = await googleClient.verifyIdToken({
@@ -164,7 +164,7 @@ export async function googleAuth(idToken: string) {
   const payload = ticket.getPayload();
 
   if (!payload?.email) {
-    throw new HttpError(400, "Invalid Google token");
+    throw new HttpError(400, "โทเค็น Google ไม่ถูกต้อง");
   }
 
   const { sub: googleId, email, name, picture } = payload;
@@ -199,7 +199,7 @@ export async function googleAuth(idToken: string) {
   }
 
   if (!user.isActive) {
-    throw new HttpError(403, "This account has been deactivated", "ACCOUNT_DEACTIVATED");
+    throw new HttpError(403, "บัญชีนี้ถูกปิดใช้งาน", "ACCOUNT_DEACTIVATED");
   }
 
   return toAuthResult(user);
@@ -208,7 +208,7 @@ export async function googleAuth(idToken: string) {
 export async function getUserById(id: number) {
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) {
-    throw new HttpError(404, "User not found");
+    throw new HttpError(404, "ไม่พบผู้ใช้");
   }
   return {
     id: user.id,

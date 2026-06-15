@@ -8,6 +8,7 @@ import Divider from "@mui/material/Divider";
 import { authApi } from "@/lib/api";
 import { ApplicationStatus, JobApplication, PaginatedResult } from "@/lib/types";
 import PaginationControl from "@/components/PaginationControl";
+import { applicationStatusLabel } from "@/lib/labels";
 
 const statuses: ApplicationStatus[] = ["PENDING", "REVIEWING", "INTERVIEW", "OFFERED", "REJECTED", "HIRED", "RETURNED"];
 
@@ -27,13 +28,13 @@ export default async function ApplicationsPage({
   return (
     <div>
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
-        Applications
+        ใบสมัคร
       </Typography>
 
       <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", mb: 3 }}>
-        <FilterChip label="All" active={!status} href="/dashboard/applications" />
+        <FilterChip label="ทั้งหมด" active={!status} href="/dashboard/applications" />
         {statuses.map((s) => (
-          <FilterChip key={s} label={s} active={status === s} href={`/dashboard/applications?status=${s}`} />
+          <FilterChip key={s} label={applicationStatusLabel[s] ?? s} active={status === s} href={`/dashboard/applications?status=${s}`} />
         ))}
       </Stack>
 
@@ -58,16 +59,16 @@ export default async function ApplicationsPage({
                 <div>
                   <Typography sx={{ fontWeight: 500 }}>{app.fullName}</Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {app.jobPosting?.title} · {app.email} · {new Date(app.createdAt).toLocaleDateString()}
+                    {app.jobPosting?.title} · {app.email} · {new Date(app.createdAt).toLocaleDateString("th-TH")}
                   </Typography>
                 </div>
-                <Chip label={app.status} size="small" />
+                <Chip label={applicationStatusLabel[app.status] ?? app.status} size="small" />
               </Box>
             </Box>
           ))}
           {applications.length === 0 && (
             <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-              No applications found.
+              ไม่พบใบสมัคร
             </Typography>
           )}
         </Stack>

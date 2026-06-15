@@ -41,14 +41,14 @@ export default async function ApplyPage({ params }: { params: Promise<{ id: stri
   return (
     <Container component="main" maxWidth="sm" sx={{ flex: 1, py: 6 }}>
       <Link href={`/jobs/${job.id}`} style={{ fontSize: 14, color: "var(--mui-palette-text-secondary)" }}>
-        ← Back to job details
+        ← กลับไปยังรายละเอียดงาน
       </Link>
 
       <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mt: 2, mb: 0.5 }}>
-        Apply for {job.title}
+        สมัครงานตำแหน่ง {job.title}
       </Typography>
       <Typography color="text.secondary" sx={{ mb: 4 }}>
-        Please fill out the form below. Fields marked with * are required.
+        กรุณากรอกแบบฟอร์มด้านล่าง ช่องที่มีเครื่องหมาย * จำเป็นต้องกรอก
       </Typography>
 
       <ApplicationForm jobPostingId={job.id} profile={profile} />

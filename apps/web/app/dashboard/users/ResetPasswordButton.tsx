@@ -21,23 +21,23 @@ export default function ResetPasswordButton({ userId, name }: { userId: number; 
   return (
     <>
       <Button size="small" onClick={() => setOpen(true)}>
-        Reset Password
+        รีเซ็ตรหัสผ่าน
       </Button>
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>Reset password for {name}</DialogTitle>
+        <DialogTitle>รีเซ็ตรหัสผ่านสำหรับ {name}</DialogTitle>
         <Stack component="form" action={formAction} spacing={2} sx={{ px: 3, pb: 1 }}>
           <DialogContent sx={{ p: 0 }}>
             <Stack spacing={2}>
-              <TextField label="New password" name="newPassword" type="password" required fullWidth size="small" helperText="At least 8 characters" />
-              <TextField label="Confirm new password" name="confirmPassword" type="password" required fullWidth size="small" />
+              <TextField label="รหัสผ่านใหม่" name="newPassword" type="password" required fullWidth size="small" helperText="อย่างน้อย 8 ตัวอักษร" />
+              <TextField label="ยืนยันรหัสผ่านใหม่" name="confirmPassword" type="password" required fullWidth size="small" />
               {state.error && <Alert severity="error">{state.error}</Alert>}
-              {state.success && <Alert severity="success">Password reset successfully.</Alert>}
+              {state.success && <Alert severity="success">รีเซ็ตรหัสผ่านสำเร็จ</Alert>}
             </Stack>
           </DialogContent>
           <DialogActions sx={{ px: 0 }}>
-            <Button onClick={() => setOpen(false)}>Close</Button>
+            <Button onClick={() => setOpen(false)}>ปิด</Button>
             <Button type="submit" variant="contained" disabled={pending}>
-              {pending ? "Saving..." : "Reset"}
+              {pending ? "กำลังบันทึก..." : "รีเซ็ต"}
             </Button>
           </DialogActions>
         </Stack>

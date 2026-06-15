@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { authApi } from "@/lib/api";
+import { UserDocument } from "@/lib/types";
 
 export async function updateUserRoleAction(userId: number, role: string) {
   await authApi(`/api/users/${userId}/role`, {
@@ -19,6 +20,10 @@ export async function updateUserActiveAction(userId: number, isActive: boolean) 
   revalidatePath("/dashboard/users");
 }
 
+export async function getUserDocumentsAction(userId: number): Promise<UserDocument[]> {
+  return authApi<UserDocument[]>(`/api/users/${userId}/documents`);
+}
+
 export interface ResetPasswordFormState {
   error?: string;
   success?: boolean;
@@ -33,7 +38,7 @@ export async function resetUserPasswordAction(
   const confirmPassword = formData.get("confirmPassword") as string;
 
   if (newPassword !== confirmPassword) {
-    return { error: "Passwords do not match" };
+    return { error: "รหัสผ่านไม่ตรงกัน" };
   }
 
   try {
@@ -42,7 +47,7 @@ export async function resetUserPasswordAction(
       body: JSON.stringify({ newPassword }),
     });
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Failed to reset password" };
+    return { error: err instanceof Error ? err.message : "ไม่สามารถรีเซ็ตรหัสผ่านได้" };
   }
 
   return { success: true };

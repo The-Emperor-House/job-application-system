@@ -8,7 +8,7 @@ export default function DeleteApplicationButton({ applicationId }: { application
   const [pending, startTransition] = useTransition();
 
   function handleDelete() {
-    if (!confirm("Delete this application? This cannot be undone.")) {
+    if (!confirm("ลบใบสมัครนี้? การลบไม่สามารถย้อนกลับได้")) {
       return;
     }
     startTransition(() => deleteApplicationAction(applicationId));
@@ -16,7 +16,7 @@ export default function DeleteApplicationButton({ applicationId }: { application
 
   return (
     <Button color="error" variant="outlined" size="small" disabled={pending} onClick={handleDelete}>
-      {pending ? "Deleting..." : "Delete"}
+      {pending ? "กำลังลบ..." : "ลบ"}
     </Button>
   );
 }

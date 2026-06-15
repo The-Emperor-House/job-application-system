@@ -12,7 +12,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
   return (
     <div>
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
-        Edit Job Posting
+        แก้ไขตำแหน่งงาน
       </Typography>
       <JobForm action={action} job={job} />
     </div>

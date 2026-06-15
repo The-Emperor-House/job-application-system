@@ -31,9 +31,9 @@ export async function sendOtpEmail(to: string, otp: string): Promise<void> {
   await mailer.sendMail({
     from: env.smtp.from,
     to,
-    subject: "Your verification code",
-    text: `Your verification code is ${otp}. It expires in ${env.otpExpiresMinutes} minutes.`,
-    html: `<p>Your verification code is <strong>${otp}</strong>.</p><p>It expires in ${env.otpExpiresMinutes} minutes.</p>`,
+    subject: "รหัสยืนยันของคุณ",
+    text: `รหัสยืนยันของคุณคือ ${otp} รหัสนี้จะหมดอายุภายใน ${env.otpExpiresMinutes} นาที`,
+    html: `<p>รหัสยืนยันของคุณคือ <strong>${otp}</strong></p><p>รหัสนี้จะหมดอายุภายใน ${env.otpExpiresMinutes} นาที</p>`,
   });
 }
 
@@ -48,8 +48,8 @@ export async function sendPasswordResetNotification(to: string, name: string): P
   await mailer.sendMail({
     from: env.smtp.from,
     to,
-    subject: "Your password has been reset",
-    text: `Hi ${name},\n\nYour password was just reset by an administrator. If you did not expect this, please contact support immediately.`,
-    html: `<p>Hi ${name},</p><p>Your password was just reset by an administrator. If you did not expect this, please contact support immediately.</p>`,
+    subject: "รหัสผ่านของคุณถูกรีเซ็ต",
+    text: `สวัสดีคุณ ${name}\n\nรหัสผ่านของคุณถูกรีเซ็ตโดยผู้ดูแลระบบ หากคุณไม่ได้คาดหวังการเปลี่ยนแปลงนี้ กรุณาติดต่อฝ่ายสนับสนุนทันที`,
+    html: `<p>สวัสดีคุณ ${name}</p><p>รหัสผ่านของคุณถูกรีเซ็ตโดยผู้ดูแลระบบ หากคุณไม่ได้คาดหวังการเปลี่ยนแปลงนี้ กรุณาติดต่อฝ่ายสนับสนุนทันที</p>`,
   });
 }

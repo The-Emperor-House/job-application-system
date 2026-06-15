@@ -9,10 +9,10 @@ import { publicApi, ApiError } from "@/lib/api";
 import { JobPosting } from "@/lib/types";
 
 const employmentTypeLabel: Record<string, string> = {
-  FULL_TIME: "Full-time",
-  PART_TIME: "Part-time",
-  CONTRACT: "Contract",
-  INTERNSHIP: "Internship",
+  FULL_TIME: "งานประจำ",
+  PART_TIME: "พาร์ทไทม์",
+  CONTRACT: "สัญญาจ้าง",
+  INTERNSHIP: "ฝึกงาน",
 };
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -31,7 +31,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   return (
     <Container component="main" maxWidth="sm" sx={{ flex: 1, py: 6 }}>
       <Link href="/" style={{ fontSize: 14, color: "var(--mui-palette-text-secondary)" }}>
-        ← Back to all positions
+        ← กลับไปยังตำแหน่งงานทั้งหมด
       </Link>
 
       <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mt: 2 }}>
@@ -48,7 +48,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
       <Box component="section" sx={{ mt: 4 }}>
         <Typography variant="h6" component="h2" sx={{ fontWeight: 600, mb: 1 }}>
-          Job Description
+          รายละเอียดงาน
         </Typography>
         <Typography sx={{ whiteSpace: "pre-line" }}>{job.description}</Typography>
       </Box>
@@ -56,7 +56,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
       {job.requirements && (
         <Box component="section" sx={{ mt: 3 }}>
           <Typography variant="h6" component="h2" sx={{ fontWeight: 600, mb: 1 }}>
-            Requirements
+            คุณสมบัติ
           </Typography>
           <Typography sx={{ whiteSpace: "pre-line" }}>{job.requirements}</Typography>
         </Box>
@@ -64,11 +64,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
 
       {job.status === "OPEN" && (!job.closingDate || new Date(job.closingDate) >= new Date()) ? (
         <Button component={NavLink} href={`/jobs/${job.id}/apply`} variant="contained" size="large" sx={{ mt: 5 }}>
-          Apply now
+          สมัครงานนี้
         </Button>
       ) : (
         <Typography color="text.secondary" sx={{ mt: 5 }}>
-          This position is no longer accepting applications.
+          ตำแหน่งนี้ปิดรับสมัครแล้ว
         </Typography>
       )}
     </Container>

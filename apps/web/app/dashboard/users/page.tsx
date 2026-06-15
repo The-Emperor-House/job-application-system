@@ -11,6 +11,7 @@ import { AuthUser, PaginatedResult } from "@/lib/types";
 import RoleSelector from "./RoleSelector";
 import ActiveToggle from "./ActiveToggle";
 import ResetPasswordButton from "./ResetPasswordButton";
+import ViewDocumentsButton from "./ViewDocumentsButton";
 import PaginationControl from "@/components/PaginationControl";
 
 export default async function UsersPage({
@@ -30,18 +31,18 @@ export default async function UsersPage({
   return (
     <div>
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
-        User Accounts
+        บัญชีผู้ใช้งาน
       </Typography>
 
       <Paper variant="outlined">
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Active</TableCell>
-              <TableCell>Joined</TableCell>
+              <TableCell>ชื่อ</TableCell>
+              <TableCell>อีเมล</TableCell>
+              <TableCell>บทบาท</TableCell>
+              <TableCell>เปิดใช้งาน</TableCell>
+              <TableCell>เข้าร่วมเมื่อ</TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableHead>
@@ -56,8 +57,9 @@ export default async function UsersPage({
                 <TableCell>
                   <ActiveToggle userId={user.id} isActive={user.isActive ?? true} />
                 </TableCell>
-                <TableCell>{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}</TableCell>
+                <TableCell>{user.createdAt ? new Date(user.createdAt).toLocaleDateString("th-TH") : "-"}</TableCell>
                 <TableCell>
+                  <ViewDocumentsButton userId={user.id} name={user.name} />
                   <ResetPasswordButton userId={user.id} name={user.name} />
                 </TableCell>
               </TableRow>

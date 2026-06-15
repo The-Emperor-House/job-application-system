@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Noto_Sans_Thai } from "next/font/google";
 import Providers from "./providers";
 import "./globals.css";
 
@@ -13,9 +13,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const notoSansThai = Noto_Sans_Thai({
+  variable: "--font-noto-sans-thai",
+  subsets: ["thai", "latin"],
+  weight: ["300", "400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "Job Application System",
-  description: "Apply for open positions and track applications.",
+  title: "ระบบรับสมัครงาน",
+  description: "สมัครงานในตำแหน่งที่เปิดรับและติดตามสถานะใบสมัครของคุณ",
 };
 
 export default function RootLayout({
@@ -24,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="th" className={`${geistSans.variable} ${geistMono.variable} ${notoSansThai.variable}`}>
       <body>
         <Providers>{children}</Providers>
       </body>

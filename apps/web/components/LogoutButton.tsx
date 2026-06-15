@@ -14,7 +14,7 @@ export default function LogoutButton() {
 
   return (
     <Button onClick={handleLogout} size="small" color="inherit">
-      Log out
+      ออกจากระบบ
     </Button>
   );
 }

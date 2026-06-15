@@ -10,6 +10,8 @@ import {
   listMyApplicationsHandler,
   getMyApplicationHandler,
   updateMyApplicationHandler,
+  deleteMyAttachmentHandler,
+  deleteMyPhotoHandler,
 } from "./applications.controller";
 import { authenticateToken, authorizeRole } from "../../middlewares/auth";
 import { uploadApplicationFiles } from "../../middlewares/upload";
@@ -29,6 +31,8 @@ router.post("/:id/attachments", authenticateToken, uploadApplicationFiles, uploa
 router.get("/my", authenticateToken, listMyApplicationsHandler);
 router.get("/my/:id", authenticateToken, getMyApplicationHandler);
 router.patch("/my/:id", authenticateToken, updateMyApplicationHandler);
+router.delete("/my/:id/attachments/:attachmentId", authenticateToken, deleteMyAttachmentHandler);
+router.delete("/my/:id/photo", authenticateToken, deleteMyPhotoHandler);
 
 // Admin/HR/Super Admin — review applications
 router.get("/", ...requireStaff, listApplicationsHandler);

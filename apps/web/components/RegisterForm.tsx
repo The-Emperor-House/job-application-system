@@ -37,7 +37,7 @@ export default function RegisterForm() {
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      setError(data.message ?? "Registration failed");
+      setError(data.message ?? "ลงทะเบียนไม่สำเร็จ");
       setSubmitting(false);
       return;
     }
@@ -48,9 +48,9 @@ export default function RegisterForm() {
   return (
     <Stack spacing={2}>
       <Stack component="form" onSubmit={handleSubmit} spacing={2}>
-        <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} required fullWidth size="small" />
+        <TextField label="ชื่อ" value={name} onChange={(e) => setName(e.target.value)} required fullWidth size="small" />
         <TextField
-          label="Email"
+          label="อีเมล"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -59,22 +59,22 @@ export default function RegisterForm() {
           size="small"
         />
         <TextField
-          label="Password"
+          label="รหัสผ่าน"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
           fullWidth
           size="small"
-          helperText="At least 8 characters"
+          helperText="อย่างน้อย 8 ตัวอักษร"
         />
         {error && <Alert severity="error">{error}</Alert>}
         <Button type="submit" variant="contained" disabled={submitting} fullWidth>
-          {submitting ? "Creating account..." : "Create account"}
+          {submitting ? "กำลังสร้างบัญชี..." : "สร้างบัญชี"}
         </Button>
       </Stack>
 
-      <Divider>or</Divider>
+      <Divider>หรือ</Divider>
 
       <Box sx={{ display: "flex", justifyContent: "center" }}>
         <GoogleSignInButton

@@ -16,20 +16,20 @@ export default function Error({ reset }: { error: Error & { digest?: string }; r
     >
       <Box>
         <Typography variant="h2" component="h1" sx={{ fontWeight: 700, color: "primary.main" }}>
-          Oops
+          อุ๊ปส์
         </Typography>
         <Typography variant="h6" sx={{ mt: 1, mb: 1 }}>
-          Something went wrong
+          เกิดข้อผิดพลาด
         </Typography>
         <Typography color="text.secondary" sx={{ mb: 4 }}>
-          An unexpected error occurred. You can try again or head back to the home page.
+          เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ คุณสามารถลองใหม่อีกครั้งหรือกลับไปยังหน้าแรก
         </Typography>
         <Stack direction="row" spacing={2} sx={{ justifyContent: "center" }}>
           <Button onClick={() => reset()} variant="outlined" size="large">
-            Try again
+            ลองใหม่อีกครั้ง
           </Button>
           <Button component={Link} href="/" variant="contained" size="large">
-            Back to home
+            กลับไปยังหน้าแรก
           </Button>
         </Stack>
       </Box>

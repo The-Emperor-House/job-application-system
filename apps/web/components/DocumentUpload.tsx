@@ -8,6 +8,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import { DocumentCategory } from "@/lib/types";
+import { documentCategoryLabel } from "@/lib/labels";
 
 const categories: DocumentCategory[] = ["RESUME", "PORTFOLIO", "CERTIFICATE", "OTHER"];
 
@@ -21,7 +22,7 @@ export default function DocumentUpload() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!file) {
-      setError("Please choose a file");
+      setError("กรุณาเลือกไฟล์");
       return;
     }
 
@@ -41,7 +42,7 @@ export default function DocumentUpload() {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.message ?? "Failed to upload document");
+      setError(data.message ?? "ไม่สามารถอัปโหลดเอกสารได้");
       return;
     }
 
@@ -53,7 +54,7 @@ export default function DocumentUpload() {
     <Stack component="form" onSubmit={handleSubmit} direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 3 }}>
       <TextField
         select
-        label="Category"
+        label="หมวดหมู่"
         value={category}
         onChange={(e) => setCategory(e.target.value as DocumentCategory)}
         size="small"
@@ -61,16 +62,16 @@ export default function DocumentUpload() {
       >
         {categories.map((opt) => (
           <MenuItem key={opt} value={opt}>
-            {opt}
+            {documentCategoryLabel[opt] ?? opt}
           </MenuItem>
         ))}
       </TextField>
       <Button variant="outlined" component="label" sx={{ flex: 1 }}>
-        {file ? file.name : "Choose file"}
+        {file ? file.name : "เลือกไฟล์"}
         <input type="file" hidden accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
       </Button>
       <Button type="submit" variant="contained" disabled={uploading}>
-        {uploading ? "Uploading..." : "Upload"}
+        {uploading ? "กำลังอัปโหลด..." : "อัปโหลด"}
       </Button>
       {error && <Alert severity="error">{error}</Alert>}
     </Stack>

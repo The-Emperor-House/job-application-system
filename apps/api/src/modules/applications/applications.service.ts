@@ -7,12 +7,12 @@ import { CreateApplicationInput, UpdateApplicationInput } from "./applications.s
 export async function createApplication(input: CreateApplicationInput, userId: number) {
   const job = await prisma.jobPosting.findUnique({ where: { id: input.jobPostingId } });
   if (!job) {
-    throw new HttpError(404, "Job posting not found");
+    throw new HttpError(404, "ไม่พบตำแหน่งงาน");
   }
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
-    throw new HttpError(404, "User not found");
+    throw new HttpError(404, "ไม่พบผู้ใช้");
   }
 
   const fullName = input.fullName ?? user.name;
@@ -20,7 +20,7 @@ export async function createApplication(input: CreateApplicationInput, userId: n
   const phone = input.phone ?? user.phone;
 
   if (!phone) {
-    throw new HttpError(400, "Phone number is required");
+    throw new HttpError(400, "กรุณากรอกเบอร์โทรศัพท์");
   }
 
   return prisma.jobApplication.create({
@@ -60,16 +60,16 @@ export async function createApplication(input: CreateApplicationInput, userId: n
 export async function updateApplication(applicationId: number, userId: number, input: UpdateApplicationInput) {
   const application = await prisma.jobApplication.findUnique({ where: { id: applicationId } });
   if (!application || application.userId !== userId) {
-    throw new HttpError(404, "Application not found");
+    throw new HttpError(404, "ไม่พบใบสมัคร");
   }
 
   if (application.status !== "RETURNED") {
-    throw new HttpError(400, "Only applications returned for revision can be edited");
+    throw new HttpError(400, "แก้ไขได้เฉพาะใบสมัครที่ถูกตีกลับให้แก้ไขเท่านั้น");
   }
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
-    throw new HttpError(404, "User not found");
+    throw new HttpError(404, "ไม่พบผู้ใช้");
   }
 
   const fullName = input.fullName ?? user.name;
@@ -77,7 +77,7 @@ export async function updateApplication(applicationId: number, userId: number, i
   const phone = input.phone ?? user.phone;
 
   if (!phone) {
-    throw new HttpError(400, "Phone number is required");
+    throw new HttpError(400, "กรุณากรอกเบอร์โทรศัพท์");
   }
 
   await prisma.$transaction([
@@ -128,11 +128,11 @@ export async function uploadAttachments(
 ) {
   const application = await prisma.jobApplication.findUnique({ where: { id: applicationId } });
   if (!application) {
-    throw new HttpError(404, "Application not found");
+    throw new HttpError(404, "ไม่พบใบสมัคร");
   }
 
   if (application.userId !== userId) {
-    throw new HttpError(403, "You do not have access to this application");
+    throw new HttpError(403, "คุณไม่มีสิทธิ์เข้าถึงใบสมัครนี้");
   }
 
   if (files.resume?.[0]) {
@@ -156,6 +156,39 @@ export async function uploadAttachments(
   }
 
   return getApplicationById(applicationId);
+}
+
+export async function deleteMyAttachment(applicationId: number, userId: number, attachmentId: number) {
+  const application = await prisma.jobApplication.findUnique({ where: { id: applicationId } });
+  if (!application || application.userId !== userId) {
+    throw new HttpError(404, "ไม่พบใบสมัคร");
+  }
+
+  if (application.status !== "RETURNED") {
+    throw new HttpError(400, "แก้ไขได้เฉพาะใบสมัครที่ถูกตีกลับให้แก้ไขเท่านั้น");
+  }
+
+  const attachment = await prisma.applicationAttachment.findUnique({ where: { id: attachmentId } });
+  if (!attachment || attachment.applicationId !== applicationId) {
+    throw new HttpError(404, "ไม่พบไฟล์ที่แนบ");
+  }
+
+  await prisma.applicationAttachment.delete({ where: { id: attachmentId } });
+  return { ok: true };
+}
+
+export async function deleteMyPhoto(applicationId: number, userId: number) {
+  const application = await prisma.jobApplication.findUnique({ where: { id: applicationId } });
+  if (!application || application.userId !== userId) {
+    throw new HttpError(404, "ไม่พบใบสมัคร");
+  }
+
+  if (application.status !== "RETURNED") {
+    throw new HttpError(400, "แก้ไขได้เฉพาะใบสมัครที่ถูกตีกลับให้แก้ไขเท่านั้น");
+  }
+
+  await prisma.jobApplication.update({ where: { id: applicationId }, data: { photoUrl: null } });
+  return { ok: true };
 }
 
 export interface ListApplicationsFilter {
@@ -194,7 +227,7 @@ export async function listMyApplications(userId: number) {
 export async function getMyApplicationById(userId: number, id: number) {
   const application = await getApplicationById(id);
   if (application.userId !== userId) {
-    throw new HttpError(404, "Application not found");
+    throw new HttpError(404, "ไม่พบใบสมัคร");
   }
   return application;
 }
@@ -222,7 +255,7 @@ export async function getApplicationById(id: number) {
   });
 
   if (!application) {
-    throw new HttpError(404, "Application not found");
+    throw new HttpError(404, "ไม่พบใบสมัคร");
   }
   return application;
 }

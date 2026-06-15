@@ -31,13 +31,13 @@ export default async function AccountOverviewPage() {
 
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, sm: 4 }}>
-          <NavCard href="/account/profile" label="Profile" description="Update your personal details and avatar" />
+          <NavCard href="/account/profile" label="ข้อมูลส่วนตัว" description="แก้ไขข้อมูลส่วนตัวและรูปโปรไฟล์ของคุณ" />
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
-          <NavCard href="/account/documents" label="Documents" description="Manage resume, portfolio, and other files" />
+          <NavCard href="/account/documents" label="เอกสาร" description="จัดการเรซูเม่ พอร์ตโฟลิโอ และไฟล์อื่นๆ" />
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
-          <NavCard href="/account/applications" label="My Applications" description="Track the status of your applications" />
+          <NavCard href="/account/applications" label="ใบสมัครของฉัน" description="ติดตามสถานะใบสมัครของคุณ" />
         </Grid>
       </Grid>
     </div>

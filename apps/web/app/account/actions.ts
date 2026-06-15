@@ -22,7 +22,7 @@ export async function updateProfileAction(
       }),
     });
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Failed to update profile" };
+    return { error: err instanceof Error ? err.message : "อัปเดตข้อมูลส่วนตัวไม่สำเร็จ" };
   }
 
   revalidatePath("/account");
@@ -49,7 +49,7 @@ export async function changePasswordAction(
   const confirmPassword = formData.get("confirmPassword") as string;
 
   if (newPassword !== confirmPassword) {
-    return { error: "New password and confirmation do not match" };
+    return { error: "รหัสผ่านใหม่และการยืนยันไม่ตรงกัน" };
   }
 
   try {
@@ -58,7 +58,7 @@ export async function changePasswordAction(
       body: JSON.stringify({ currentPassword, newPassword }),
     });
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Failed to change password" };
+    return { error: err instanceof Error ? err.message : "เปลี่ยนรหัสผ่านไม่สำเร็จ" };
   }
 
   return { success: true };

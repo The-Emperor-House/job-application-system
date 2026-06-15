@@ -9,6 +9,7 @@ import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import { JobFormState } from "@/app/dashboard/jobs/actions";
 import { JobPosting } from "@/lib/types";
+import { employmentTypeLabel, jobStatusLabel } from "@/lib/labels";
 
 const employmentTypes = ["FULL_TIME", "PART_TIME", "CONTRACT", "INTERNSHIP"];
 const jobStatuses = ["OPEN", "CLOSED"];
@@ -26,21 +27,21 @@ export default function JobForm({
     <Stack component="form" action={formAction} spacing={2} sx={{ maxWidth: 640 }}>
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField name="title" label="Title" required fullWidth size="small" defaultValue={job?.title} />
+          <TextField name="title" label="ชื่อตำแหน่งงาน" required fullWidth size="small" defaultValue={job?.title} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField name="department" label="Department" fullWidth size="small" defaultValue={job?.department ?? ""} />
+          <TextField name="department" label="แผนก" fullWidth size="small" defaultValue={job?.department ?? ""} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField name="location" label="Location" fullWidth size="small" defaultValue={job?.location ?? ""} />
+          <TextField name="location" label="สถานที่ทำงาน" fullWidth size="small" defaultValue={job?.location ?? ""} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField name="salaryRange" label="Salary range" fullWidth size="small" defaultValue={job?.salaryRange ?? ""} />
+          <TextField name="salaryRange" label="ช่วงเงินเดือน" fullWidth size="small" defaultValue={job?.salaryRange ?? ""} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
           <TextField
             name="employmentType"
-            label="Employment type"
+            label="ประเภทการจ้างงาน"
             select
             fullWidth
             size="small"
@@ -48,16 +49,16 @@ export default function JobForm({
           >
             {employmentTypes.map((opt) => (
               <MenuItem key={opt} value={opt}>
-                {opt}
+                {employmentTypeLabel[opt] ?? opt}
               </MenuItem>
             ))}
           </TextField>
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <TextField name="status" label="Status" select fullWidth size="small" defaultValue={job?.status ?? "OPEN"}>
+          <TextField name="status" label="สถานะ" select fullWidth size="small" defaultValue={job?.status ?? "OPEN"}>
             {jobStatuses.map((opt) => (
               <MenuItem key={opt} value={opt}>
-                {opt}
+                {jobStatusLabel[opt] ?? opt}
               </MenuItem>
             ))}
           </TextField>
@@ -65,7 +66,7 @@ export default function JobForm({
         <Grid size={{ xs: 12, sm: 6 }}>
           <TextField
             name="closingDate"
-            label="Closing date"
+            label="วันที่ปิดรับสมัคร"
             type="date"
             fullWidth
             size="small"
@@ -75,13 +76,13 @@ export default function JobForm({
         </Grid>
       </Grid>
 
-      <TextField name="description" label="Description" required multiline minRows={4} fullWidth size="small" defaultValue={job?.description} />
-      <TextField name="requirements" label="Requirements" multiline minRows={4} fullWidth size="small" defaultValue={job?.requirements ?? ""} />
+      <TextField name="description" label="รายละเอียดงาน" required multiline minRows={4} fullWidth size="small" defaultValue={job?.description} />
+      <TextField name="requirements" label="คุณสมบัติที่ต้องการ" multiline minRows={4} fullWidth size="small" defaultValue={job?.requirements ?? ""} />
 
       {state.error && <Alert severity="error">{state.error}</Alert>}
 
       <Button type="submit" variant="contained" disabled={pending} sx={{ alignSelf: "flex-start" }}>
-        {pending ? "Saving..." : "Save"}
+        {pending ? "กำลังบันทึก..." : "บันทึก"}
       </Button>
     </Stack>
   );

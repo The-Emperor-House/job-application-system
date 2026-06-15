@@ -31,7 +31,7 @@ export default function AvatarUpload({ name, avatarUrl }: { name: string; avatar
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.message ?? "Failed to upload avatar");
+      setError(data.message ?? "ไม่สามารถอัปโหลดรูปโปรไฟล์ได้");
       return;
     }
 
@@ -45,7 +45,7 @@ export default function AvatarUpload({ name, avatarUrl }: { name: string; avatar
       </Avatar>
       <Stack spacing={1}>
         <Button variant="outlined" component="label" size="small" disabled={uploading}>
-          {uploading ? "Uploading..." : "Change avatar"}
+          {uploading ? "กำลังอัปโหลด..." : "เปลี่ยนรูปโปรไฟล์"}
           <input type="file" hidden accept="image/jpeg,image/png,image/webp" onChange={handleChange} />
         </Button>
         {error && <Alert severity="error">{error}</Alert>}

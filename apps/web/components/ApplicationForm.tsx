@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Link from "next/link";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
@@ -11,7 +12,8 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
-import { AuthUser, JobApplication } from "@/lib/types";
+import { AuthUser, ApplicationAttachment, JobApplication } from "@/lib/types";
+import { languageLevelLabel } from "@/lib/labels";
 
 interface EducationRow {
   level: string;
@@ -123,6 +125,10 @@ export default function ApplicationForm({
 
   const [resume, setResume] = useState<File | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
+  const [existingAttachments, setExistingAttachments] = useState<ApplicationAttachment[]>(application?.attachments ?? []);
+  const [existingPhotoUrl, setExistingPhotoUrl] = useState<string | null>(application?.photoUrl ?? null);
+  const [deletingAttachmentId, setDeletingAttachmentId] = useState<number | null>(null);
+  const [deletingPhoto, setDeletingPhoto] = useState(false);
 
   function updateRow<T>(rows: T[], setRows: (rows: T[]) => void, index: number, field: keyof T, value: string) {
     const next = [...rows];
@@ -132,19 +138,53 @@ export default function ApplicationForm({
 
   function validate(): string | null {
     if (!fullName.trim() || !email.trim() || !phone.trim()) {
-      return "Please fill in your name, email, and phone number.";
+      return "กรุณากรอกชื่อ อีเมล และเบอร์โทรศัพท์";
     }
 
     const hasEducation = education.some((row) => row.level.trim() && row.institution.trim());
     if (!hasEducation) {
-      return "Please add at least one education entry.";
-    }
-
-    if (!resume && !application?.attachments?.length) {
-      return "Please upload your resume.";
+      return "กรุณาเพิ่มข้อมูลการศึกษาอย่างน้อย 1 รายการ";
     }
 
     return null;
+  }
+
+  async function handleDeleteAttachment(attachmentId: number) {
+    if (!application || !confirm("ลบไฟล์นี้?")) return;
+    setDeletingAttachmentId(attachmentId);
+    try {
+      const res = await fetch(`/api/applications/my/${application.id}/attachments/${attachmentId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message ?? "ไม่สามารถลบไฟล์ได้");
+      }
+      setExistingAttachments((prev) => prev.filter((a) => a.id !== attachmentId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "เกิดข้อผิดพลาด");
+    } finally {
+      setDeletingAttachmentId(null);
+    }
+  }
+
+  async function handleDeletePhoto() {
+    if (!application || !confirm("ลบรูปถ่ายนี้?")) return;
+    setDeletingPhoto(true);
+    try {
+      const res = await fetch(`/api/applications/my/${application.id}/photo`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message ?? "ไม่สามารถลบรูปถ่ายได้");
+      }
+      setExistingPhotoUrl(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "เกิดข้อผิดพลาด");
+    } finally {
+      setDeletingPhoto(false);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -188,7 +228,7 @@ export default function ApplicationForm({
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.message ?? "Failed to submit application");
+        throw new Error(body.message ?? "ไม่สามารถส่งใบสมัครได้");
       }
 
       const saved = await res.json();
@@ -204,13 +244,13 @@ export default function ApplicationForm({
         });
         if (!uploadRes.ok) {
           const body = await uploadRes.json().catch(() => ({}));
-          throw new Error(body.message ?? "Failed to upload files");
+          throw new Error(body.message ?? "ไม่สามารถอัปโหลดไฟล์ได้");
         }
       }
 
       router.push(application ? `/account/applications/${saved.id}` : "/apply/success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setError(err instanceof Error ? err.message : "เกิดข้อผิดพลาด");
       setSubmitting(false);
     }
   }
@@ -219,21 +259,21 @@ export default function ApplicationForm({
     <Stack component="form" onSubmit={handleSubmit} spacing={5}>
       <Box component="section">
         <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-          Personal Information
+          ข้อมูลส่วนตัว
         </Typography>
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField label="Full name" required fullWidth size="small" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+            <TextField label="ชื่อ-นามสกุล" required fullWidth size="small" value={fullName} onChange={(e) => setFullName(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField label="Email" type="email" required fullWidth size="small" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <TextField label="อีเมล" type="email" required fullWidth size="small" value={email} onChange={(e) => setEmail(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField label="Phone" required fullWidth size="small" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            <TextField label="เบอร์โทรศัพท์" required fullWidth size="small" value={phone} onChange={(e) => setPhone(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
-              label="Birth date"
+              label="วันเกิด"
               type="date"
               fullWidth
               size="small"
@@ -243,11 +283,11 @@ export default function ApplicationForm({
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <TextField label="Expected salary" fullWidth size="small" value={expectedSalary} onChange={(e) => setExpectedSalary(e.target.value)} />
+            <TextField label="เงินเดือนที่คาดหวัง" fullWidth size="small" value={expectedSalary} onChange={(e) => setExpectedSalary(e.target.value)} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
-              label="Available start date"
+              label="วันที่พร้อมเริ่มงาน"
               type="date"
               fullWidth
               size="small"
@@ -257,7 +297,7 @@ export default function ApplicationForm({
             />
           </Grid>
           <Grid size={12}>
-            <TextField label="Address" fullWidth size="small" multiline minRows={2} value={address} onChange={(e) => setAddress(e.target.value)} />
+            <TextField label="ที่อยู่" fullWidth size="small" multiline minRows={2} value={address} onChange={(e) => setAddress(e.target.value)} />
           </Grid>
         </Grid>
       </Box>
@@ -265,7 +305,7 @@ export default function ApplicationForm({
       <Box component="section">
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            Education
+            การศึกษา
           </Typography>
           <AddButton onClick={() => setEducation([...education, { ...emptyEducation }])} />
         </Box>
@@ -273,19 +313,19 @@ export default function ApplicationForm({
           {education.map((row, i) => (
             <Row key={i} onRemove={() => setEducation(education.filter((_, idx) => idx !== i))} canRemove={education.length > 1}>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField label="Level" placeholder="e.g. Bachelor's" fullWidth size="small" value={row.level} onChange={(e) => updateRow(education, setEducation, i, "level", e.target.value)} />
+                <TextField label="ระดับการศึกษา" placeholder="เช่น ปริญญาตรี" fullWidth size="small" value={row.level} onChange={(e) => updateRow(education, setEducation, i, "level", e.target.value)} />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField label="Institution" fullWidth size="small" value={row.institution} onChange={(e) => updateRow(education, setEducation, i, "institution", e.target.value)} />
+                <TextField label="สถานศึกษา" fullWidth size="small" value={row.institution} onChange={(e) => updateRow(education, setEducation, i, "institution", e.target.value)} />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField label="Major" fullWidth size="small" value={row.major} onChange={(e) => updateRow(education, setEducation, i, "major", e.target.value)} />
+                <TextField label="สาขาวิชา" fullWidth size="small" value={row.major} onChange={(e) => updateRow(education, setEducation, i, "major", e.target.value)} />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField label="Graduation year" fullWidth size="small" value={row.graduationYear} onChange={(e) => updateRow(education, setEducation, i, "graduationYear", e.target.value)} />
+                <TextField label="ปีที่จบการศึกษา" fullWidth size="small" value={row.graduationYear} onChange={(e) => updateRow(education, setEducation, i, "graduationYear", e.target.value)} />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField label="GPA" fullWidth size="small" value={row.gpa} onChange={(e) => updateRow(education, setEducation, i, "gpa", e.target.value)} />
+                <TextField label="เกรดเฉลี่ย" fullWidth size="small" value={row.gpa} onChange={(e) => updateRow(education, setEducation, i, "gpa", e.target.value)} />
               </Grid>
             </Row>
           ))}
@@ -295,7 +335,7 @@ export default function ApplicationForm({
       <Box component="section">
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            Work Experience
+            ประสบการณ์ทำงาน
           </Typography>
           <AddButton onClick={() => setExperience([...experience, { ...emptyExperience }])} />
         </Box>
@@ -303,14 +343,14 @@ export default function ApplicationForm({
           {experience.map((row, i) => (
             <Row key={i} onRemove={() => setExperience(experience.filter((_, idx) => idx !== i))} canRemove={experience.length > 1}>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField label="Company" fullWidth size="small" value={row.company} onChange={(e) => updateRow(experience, setExperience, i, "company", e.target.value)} />
+                <TextField label="บริษัท" fullWidth size="small" value={row.company} onChange={(e) => updateRow(experience, setExperience, i, "company", e.target.value)} />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField label="Position" fullWidth size="small" value={row.position} onChange={(e) => updateRow(experience, setExperience, i, "position", e.target.value)} />
+                <TextField label="ตำแหน่ง" fullWidth size="small" value={row.position} onChange={(e) => updateRow(experience, setExperience, i, "position", e.target.value)} />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
-                  label="Start date"
+                  label="วันที่เริ่มงาน"
                   type="date"
                   fullWidth
                   size="small"
@@ -321,7 +361,7 @@ export default function ApplicationForm({
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
-                  label="End date"
+                  label="วันที่สิ้นสุด"
                   type="date"
                   fullWidth
                   size="small"
@@ -332,7 +372,7 @@ export default function ApplicationForm({
               </Grid>
               <Grid size={12}>
                 <TextField
-                  label="Responsibilities"
+                  label="หน้าที่ความรับผิดชอบ"
                   fullWidth
                   size="small"
                   multiline
@@ -349,7 +389,7 @@ export default function ApplicationForm({
       <Box component="section">
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            Languages
+            ภาษา
           </Typography>
           <AddButton onClick={() => setLanguages([...languages, { ...emptyLanguage }])} />
         </Box>
@@ -357,40 +397,40 @@ export default function ApplicationForm({
           {languages.map((row, i) => (
             <Row key={i} onRemove={() => setLanguages(languages.filter((_, idx) => idx !== i))} canRemove={languages.length > 1}>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField label="Language" fullWidth size="small" value={row.language} onChange={(e) => updateRow(languages, setLanguages, i, "language", e.target.value)} />
+                <TextField label="ภาษา" fullWidth size="small" value={row.language} onChange={(e) => updateRow(languages, setLanguages, i, "language", e.target.value)} />
               </Grid>
               <Grid size={{ xs: 6, sm: 3 }}>
-                <TextField select label="Listening" fullWidth size="small" value={row.listening} onChange={(e) => updateRow(languages, setLanguages, i, "listening", e.target.value)}>
+                <TextField select label="ฟัง" fullWidth size="small" value={row.listening} onChange={(e) => updateRow(languages, setLanguages, i, "listening", e.target.value)}>
                   {languageLevels.map((opt) => (
                     <MenuItem key={opt} value={opt}>
-                      {opt}
+                      {languageLevelLabel[opt] ?? opt}
                     </MenuItem>
                   ))}
                 </TextField>
               </Grid>
               <Grid size={{ xs: 6, sm: 3 }}>
-                <TextField select label="Speaking" fullWidth size="small" value={row.speaking} onChange={(e) => updateRow(languages, setLanguages, i, "speaking", e.target.value)}>
+                <TextField select label="พูด" fullWidth size="small" value={row.speaking} onChange={(e) => updateRow(languages, setLanguages, i, "speaking", e.target.value)}>
                   {languageLevels.map((opt) => (
                     <MenuItem key={opt} value={opt}>
-                      {opt}
+                      {languageLevelLabel[opt] ?? opt}
                     </MenuItem>
                   ))}
                 </TextField>
               </Grid>
               <Grid size={{ xs: 6, sm: 3 }}>
-                <TextField select label="Reading" fullWidth size="small" value={row.reading} onChange={(e) => updateRow(languages, setLanguages, i, "reading", e.target.value)}>
+                <TextField select label="อ่าน" fullWidth size="small" value={row.reading} onChange={(e) => updateRow(languages, setLanguages, i, "reading", e.target.value)}>
                   {languageLevels.map((opt) => (
                     <MenuItem key={opt} value={opt}>
-                      {opt}
+                      {languageLevelLabel[opt] ?? opt}
                     </MenuItem>
                   ))}
                 </TextField>
               </Grid>
               <Grid size={{ xs: 6, sm: 3 }}>
-                <TextField select label="Writing" fullWidth size="small" value={row.writing} onChange={(e) => updateRow(languages, setLanguages, i, "writing", e.target.value)}>
+                <TextField select label="เขียน" fullWidth size="small" value={row.writing} onChange={(e) => updateRow(languages, setLanguages, i, "writing", e.target.value)}>
                   {languageLevels.map((opt) => (
                     <MenuItem key={opt} value={opt}>
-                      {opt}
+                      {languageLevelLabel[opt] ?? opt}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -403,7 +443,7 @@ export default function ApplicationForm({
       <Box component="section">
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            References
+            บุคคลอ้างอิง
           </Typography>
           <AddButton onClick={() => setReferences([...references, { ...emptyReference }])} />
         </Box>
@@ -411,16 +451,16 @@ export default function ApplicationForm({
           {references.map((row, i) => (
             <Row key={i} onRemove={() => setReferences(references.filter((_, idx) => idx !== i))} canRemove={references.length > 1}>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField label="Name" fullWidth size="small" value={row.name} onChange={(e) => updateRow(references, setReferences, i, "name", e.target.value)} />
+                <TextField label="ชื่อ" fullWidth size="small" value={row.name} onChange={(e) => updateRow(references, setReferences, i, "name", e.target.value)} />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField label="Relationship" fullWidth size="small" value={row.relationship} onChange={(e) => updateRow(references, setReferences, i, "relationship", e.target.value)} />
+                <TextField label="ความสัมพันธ์" fullWidth size="small" value={row.relationship} onChange={(e) => updateRow(references, setReferences, i, "relationship", e.target.value)} />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField label="Phone" fullWidth size="small" value={row.phone} onChange={(e) => updateRow(references, setReferences, i, "phone", e.target.value)} />
+                <TextField label="เบอร์โทรศัพท์" fullWidth size="small" value={row.phone} onChange={(e) => updateRow(references, setReferences, i, "phone", e.target.value)} />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField label="Company" fullWidth size="small" value={row.company} onChange={(e) => updateRow(references, setReferences, i, "company", e.target.value)} />
+                <TextField label="บริษัท/หน่วยงาน" fullWidth size="small" value={row.company} onChange={(e) => updateRow(references, setReferences, i, "company", e.target.value)} />
               </Grid>
             </Row>
           ))}
@@ -429,12 +469,38 @@ export default function ApplicationForm({
 
       <Box component="section">
         <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-          Attachments
+          ไฟล์ที่แนบมา
         </Typography>
+
+        {application && (existingAttachments.length > 0 || existingPhotoUrl) && (
+          <Stack spacing={1} sx={{ mb: 2 }}>
+            {existingAttachments.map((a) => (
+              <Paper key={a.id} variant="outlined" sx={{ p: 1.5, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <Link href={a.fileUrl} target="_blank" rel="noreferrer" style={{ fontSize: 14, color: "var(--mui-palette-primary-main)" }}>
+                  {a.fileName}
+                </Link>
+                <Button size="small" color="error" disabled={deletingAttachmentId === a.id} onClick={() => handleDeleteAttachment(a.id)}>
+                  {deletingAttachmentId === a.id ? "กำลังลบ..." : "ลบ"}
+                </Button>
+              </Paper>
+            ))}
+            {existingPhotoUrl && (
+              <Paper variant="outlined" sx={{ p: 1.5, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <Link href={existingPhotoUrl} target="_blank" rel="noreferrer" style={{ fontSize: 14, color: "var(--mui-palette-primary-main)" }}>
+                  รูปถ่ายที่แนบไว้
+                </Link>
+                <Button size="small" color="error" disabled={deletingPhoto} onClick={handleDeletePhoto}>
+                  {deletingPhoto ? "กำลังลบ..." : "ลบ"}
+                </Button>
+              </Paper>
+            )}
+          </Stack>
+        )}
+
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, sm: 6 }}>
             <Button variant="outlined" component="label" fullWidth>
-              {resume ? resume.name : "Upload resume (PDF or Word)"}
+              {resume ? resume.name : "อัปโหลดเรซูเม่ (PDF หรือ Word)"}
               <input
                 type="file"
                 hidden
@@ -445,7 +511,7 @@ export default function ApplicationForm({
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <Button variant="outlined" component="label" fullWidth>
-              {photo ? photo.name : "Upload photo (JPG, PNG, or WEBP)"}
+              {photo ? photo.name : "อัปโหลดรูปถ่าย (JPG, PNG หรือ WEBP)"}
               <input
                 type="file"
                 hidden
@@ -460,7 +526,7 @@ export default function ApplicationForm({
       {error && <Alert severity="error">{error}</Alert>}
 
       <Button type="submit" variant="contained" size="large" disabled={submitting} sx={{ alignSelf: "flex-start" }}>
-        {submitting ? "Submitting..." : application ? "Resubmit application" : "Submit application"}
+        {submitting ? "กำลังส่ง..." : application ? "ส่งใบสมัครใหม่อีกครั้ง" : "ส่งใบสมัคร"}
       </Button>
     </Stack>
   );
@@ -480,7 +546,7 @@ function Row({ children, onRemove, canRemove }: { children: React.ReactNode; onR
           color="error"
           sx={{ position: "absolute", top: 4, right: 4, minWidth: "auto" }}
         >
-          Remove
+          ลบ
         </Button>
       )}
     </Paper>
@@ -490,7 +556,7 @@ function Row({ children, onRemove, canRemove }: { children: React.ReactNode; onR
 function AddButton({ onClick }: { onClick: () => void }) {
   return (
     <Button type="button" onClick={onClick} size="small">
-      + Add row
+      + เพิ่มรายการ
     </Button>
   );
 }

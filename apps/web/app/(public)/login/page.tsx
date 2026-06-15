@@ -15,13 +15,13 @@ export default async function LoginPage({
     <Container component="main" maxWidth="xs" sx={{ flex: 1, display: "flex", alignItems: "center", py: 8 }}>
       <Box sx={{ width: "100%" }}>
         <Typography variant="h5" component="h1" sx={{ fontWeight: 700, mb: 3, textAlign: "center" }}>
-          Sign in
+          เข้าสู่ระบบ
         </Typography>
         <LoginForm redirectTo={from} />
         <Typography variant="body2" color="text.secondary" sx={{ mt: 3, textAlign: "center" }}>
-          Don&apos;t have an account?{" "}
+          ยังไม่มีบัญชี?{" "}
           <Link href="/register" style={{ color: "var(--mui-palette-primary-main)" }}>
-            Create one
+            สร้างบัญชีใหม่
           </Link>
         </Typography>
       </Box>

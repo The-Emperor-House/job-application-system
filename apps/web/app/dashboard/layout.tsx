@@ -32,17 +32,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Stack direction="row" spacing={3} sx={{ alignItems: "center", flex: 1 }}>
             <Stack component={NavLink} href="/dashboard" direction="row" spacing={1} sx={{ alignItems: "center", textDecoration: "none", color: "inherit" }}>
               <Box component="img" src="/EMP_Logo.svg" alt="Logo" sx={{ height: 32 }} />
-              <Typography sx={{ fontWeight: 700 }}>HR Dashboard</Typography>
+              <Typography sx={{ fontWeight: 700 }}>แดชบอร์ด HR</Typography>
             </Stack>
             <Typography component={NavLink} href="/dashboard/jobs" variant="body2" color="text.secondary" sx={{ textDecoration: "none" }}>
-              Job Postings
+              ตำแหน่งงาน
             </Typography>
             <Typography component={NavLink} href="/dashboard/applications" variant="body2" color="text.secondary" sx={{ textDecoration: "none" }}>
-              Applications
+              ใบสมัคร
             </Typography>
             {user.role === "SUPER_ADMIN" && (
               <Typography component={NavLink} href="/dashboard/users" variant="body2" color="text.secondary" sx={{ textDecoration: "none" }}>
-                Users
+                ผู้ใช้งาน
               </Typography>
             )}
           </Stack>

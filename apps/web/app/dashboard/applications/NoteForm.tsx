@@ -13,10 +13,10 @@ export default function NoteForm({ applicationId }: { applicationId: number }) {
 
   return (
     <Stack component="form" action={formAction} spacing={1.5}>
-      <TextField name="note" multiline minRows={3} placeholder="Add an internal note..." size="small" fullWidth />
+      <TextField name="note" multiline minRows={3} placeholder="เพิ่มบันทึกภายใน..." size="small" fullWidth />
       {state.error && <Alert severity="error">{state.error}</Alert>}
       <Button type="submit" variant="contained" size="small" disabled={pending} sx={{ alignSelf: "flex-start" }}>
-        {pending ? "Saving..." : "Add note"}
+        {pending ? "กำลังบันทึก..." : "เพิ่มบันทึก"}
       </Button>
     </Stack>
   );

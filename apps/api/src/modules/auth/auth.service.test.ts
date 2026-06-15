@@ -51,21 +51,21 @@ describe("login", () => {
     const passwordHash = await bcrypt.hash("correct-password", 10);
     mockedPrisma.user.findUnique.mockResolvedValue({ ...baseUser, passwordHash });
 
-    await expect(login(baseUser.email, "wrong-password")).rejects.toThrow("Invalid email or password");
+    await expect(login(baseUser.email, "wrong-password")).rejects.toThrow("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
   });
 
   it("rejects a deactivated account", async () => {
     const passwordHash = await bcrypt.hash("correct-password", 10);
     mockedPrisma.user.findUnique.mockResolvedValue({ ...baseUser, passwordHash, isActive: false });
 
-    await expect(login(baseUser.email, "correct-password")).rejects.toThrow("This account has been deactivated");
+    await expect(login(baseUser.email, "correct-password")).rejects.toThrow("บัญชีนี้ถูกปิดใช้งาน");
   });
 
   it("rejects an unverified account", async () => {
     const passwordHash = await bcrypt.hash("correct-password", 10);
     mockedPrisma.user.findUnique.mockResolvedValue({ ...baseUser, passwordHash, emailVerified: false });
 
-    await expect(login(baseUser.email, "correct-password")).rejects.toThrow("Email not verified");
+    await expect(login(baseUser.email, "correct-password")).rejects.toThrow("ยังไม่ได้ยืนยันอีเมล");
   });
 
   it("returns a token and user on success", async () => {
@@ -93,7 +93,7 @@ describe("verifyOtp", () => {
     mockedPrisma.user.findUnique.mockResolvedValue({ ...unverifiedUser });
     mockedPrisma.user.update.mockResolvedValue({});
 
-    await expect(verifyOtp(unverifiedUser.email, "000000")).rejects.toThrow("Invalid verification code");
+    await expect(verifyOtp(unverifiedUser.email, "000000")).rejects.toThrow("รหัสยืนยันไม่ถูกต้อง");
 
     expect(mockedPrisma.user.update).toHaveBeenCalledWith({
       where: { id: unverifiedUser.id },
@@ -105,7 +105,7 @@ describe("verifyOtp", () => {
     mockedPrisma.user.findUnique.mockResolvedValue({ ...unverifiedUser, otpAttempts: 5 });
 
     await expect(verifyOtp(unverifiedUser.email, "000000")).rejects.toThrow(
-      "Too many incorrect attempts. Please request a new code."
+      "กรอกรหัสผิดเกินจำนวนที่กำหนด กรุณาขอรหัสใหม่"
     );
     expect(mockedPrisma.user.update).not.toHaveBeenCalled();
   });
@@ -130,7 +130,7 @@ describe("verifyOtp", () => {
     });
 
     await expect(verifyOtp(unverifiedUser.email, "123456")).rejects.toThrow(
-      "Verification code expired. Please request a new one."
+      "รหัสยืนยันหมดอายุ กรุณาขอรหัสใหม่"
     );
   });
 });
@@ -150,7 +150,7 @@ describe("resendOtp", () => {
       otpExpiresAt: new Date(Date.now() + 9.5 * 60 * 1000), // sent ~30s ago for a 10-minute OTP
     });
 
-    await expect(resendOtp(unverifiedUser.email)).rejects.toThrow("Please wait before requesting a new code");
+    await expect(resendOtp(unverifiedUser.email)).rejects.toThrow("กรุณารอสักครู่ก่อนขอรหัสใหม่");
     expect(mockedPrisma.user.update).not.toHaveBeenCalled();
   });
 

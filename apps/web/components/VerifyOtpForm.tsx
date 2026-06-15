@@ -35,7 +35,7 @@ export default function VerifyOtpForm({ email }: { email: string }) {
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      setError(data.message ?? "Verification failed");
+      setError(data.message ?? "ยืนยันรหัสไม่สำเร็จ");
       setSubmitting(false);
       return;
     }
@@ -59,17 +59,17 @@ export default function VerifyOtpForm({ email }: { email: string }) {
     setResending(false);
 
     if (!res.ok) {
-      setError(data.message ?? "Failed to resend code");
+      setError(data.message ?? "ไม่สามารถส่งรหัสใหม่ได้");
       return;
     }
 
-    setInfo("A new verification code has been sent to your email.");
+    setInfo("ส่งรหัสยืนยันใหม่ไปยังอีเมลของคุณแล้ว");
   }
 
   return (
     <Stack component="form" onSubmit={handleSubmit} spacing={2}>
       <TextField
-        label="Verification code"
+        label="รหัสยืนยัน"
         value={otp}
         onChange={(e) => setOtp(e.target.value)}
         required
@@ -80,10 +80,10 @@ export default function VerifyOtpForm({ email }: { email: string }) {
       {error && <Alert severity="error">{error}</Alert>}
       {info && <Alert severity="success">{info}</Alert>}
       <Button type="submit" variant="contained" disabled={submitting} fullWidth>
-        {submitting ? "Verifying..." : "Verify"}
+        {submitting ? "กำลังยืนยัน..." : "ยืนยัน"}
       </Button>
       <Button type="button" onClick={handleResend} disabled={resending} fullWidth>
-        {resending ? "Sending..." : "Resend code"}
+        {resending ? "กำลังส่ง..." : "ส่งรหัสอีกครั้ง"}
       </Button>
     </Stack>
   );

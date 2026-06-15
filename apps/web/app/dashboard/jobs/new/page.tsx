@@ -6,7 +6,7 @@ export default function NewJobPage() {
   return (
     <div>
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
-        New Job Posting
+        เพิ่มตำแหน่งงานใหม่
       </Typography>
       <JobForm action={createJobAction} />
     </div>

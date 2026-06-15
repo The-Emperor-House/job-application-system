@@ -8,7 +8,7 @@ export const theme = createTheme({
   },
   shape: { borderRadius: 12 },
   typography: {
-    fontFamily: ["var(--font-geist-sans)", "Roboto", "Helvetica", "Arial", "sans-serif"].join(","),
+    fontFamily: ["var(--font-noto-sans-thai)", "var(--font-geist-sans)", "Roboto", "Helvetica", "Arial", "sans-serif"].join(","),
   },
   components: {
     MuiButton: {

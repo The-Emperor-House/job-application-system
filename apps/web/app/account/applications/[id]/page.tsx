@@ -11,14 +11,7 @@ import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import { authApi, ApiError } from "@/lib/api";
 import { JobApplication } from "@/lib/types";
-
-const languageLevelLabel: Record<string, string> = {
-  NONE: "-",
-  BASIC: "Basic",
-  INTERMEDIATE: "Intermediate",
-  ADVANCED: "Advanced",
-  FLUENT: "Fluent",
-};
+import { applicationStatusLabel, languageLevelLabel } from "@/lib/labels";
 
 export default async function MyApplicationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -36,7 +29,7 @@ export default async function MyApplicationDetailPage({ params }: { params: Prom
   return (
     <div>
       <Link href="/account/applications" style={{ fontSize: 14, color: "var(--mui-palette-text-secondary)" }}>
-        ← Back to my applications
+        ← กลับไปยังใบสมัครของฉัน
       </Link>
 
       <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", mt: 2, mb: 4 }}>
@@ -44,9 +37,9 @@ export default async function MyApplicationDetailPage({ params }: { params: Prom
           <Typography variant="h5" sx={{ fontWeight: 700 }}>
             {app.jobPosting?.title}
           </Typography>
-          <Typography color="text.secondary">Applied on {new Date(app.createdAt).toLocaleDateString()}</Typography>
+          <Typography color="text.secondary">สมัครเมื่อ {new Date(app.createdAt).toLocaleDateString("th-TH")}</Typography>
         </div>
-        <Chip label={app.status} color={app.status === "RETURNED" ? "warning" : "primary"} />
+        <Chip label={applicationStatusLabel[app.status] ?? app.status} color={app.status === "RETURNED" ? "warning" : "primary"} />
       </Box>
 
       {app.status === "RETURNED" && (
@@ -55,31 +48,31 @@ export default async function MyApplicationDetailPage({ params }: { params: Prom
           sx={{ mb: 4 }}
           action={
             <Button component={NavLink} href={`/account/applications/${app.id}/edit`} color="inherit" size="small">
-              Edit & resubmit
+              แก้ไขและส่งใหม่
             </Button>
           }
         >
-          This application was returned for revision.
-          {app.notes?.length ? ` Feedback: ${app.notes[0].note}` : " Please review and update the details below."}
+          ใบสมัครนี้ถูกตีกลับเพื่อให้แก้ไข
+          {app.notes?.length ? ` ข้อเสนอแนะ: ${app.notes[0].note}` : " กรุณาตรวจสอบและแก้ไขข้อมูลด้านล่าง"}
         </Alert>
       )}
 
       <Stack spacing={4}>
-        <Section title="Personal Information">
+        <Section title="ข้อมูลส่วนตัว">
           <Grid container spacing={1.5}>
-            <Item label="Email" value={app.email} />
-            <Item label="Phone" value={app.phone} />
-            <Item label="Birth date" value={app.birthDate ? new Date(app.birthDate).toLocaleDateString() : "-"} />
-            <Item label="Expected salary" value={app.expectedSalary ?? "-"} />
+            <Item label="อีเมล" value={app.email} />
+            <Item label="เบอร์โทรศัพท์" value={app.phone} />
+            <Item label="วันเกิด" value={app.birthDate ? new Date(app.birthDate).toLocaleDateString("th-TH") : "-"} />
+            <Item label="เงินเดือนที่คาดหวัง" value={app.expectedSalary ?? "-"} />
             <Item
-              label="Available start date"
-              value={app.availableStartDate ? new Date(app.availableStartDate).toLocaleDateString() : "-"}
+              label="วันที่พร้อมเริ่มงาน"
+              value={app.availableStartDate ? new Date(app.availableStartDate).toLocaleDateString("th-TH") : "-"}
             />
-            <Item label="Address" value={app.address ?? "-"} fullWidth />
+            <Item label="ที่อยู่" value={app.address ?? "-"} fullWidth />
           </Grid>
         </Section>
 
-        <Section title="Education">
+        <Section title="การศึกษา">
           {app.education?.length ? (
             <Stack spacing={1}>
               {app.education.map((e) => (
@@ -88,7 +81,7 @@ export default async function MyApplicationDetailPage({ params }: { params: Prom
                     {e.level} - {e.institution}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {e.major} {e.graduationYear && `· Graduated ${e.graduationYear}`} {e.gpa && `· GPA ${e.gpa}`}
+                    {e.major} {e.graduationYear && `· จบการศึกษาปี ${e.graduationYear}`} {e.gpa && `· เกรดเฉลี่ย ${e.gpa}`}
                   </Typography>
                 </Paper>
               ))}
@@ -98,7 +91,7 @@ export default async function MyApplicationDetailPage({ params }: { params: Prom
           )}
         </Section>
 
-        <Section title="Work Experience">
+        <Section title="ประสบการณ์ทำงาน">
           {app.experience?.length ? (
             <Stack spacing={1}>
               {app.experience.map((e) => (
@@ -107,8 +100,8 @@ export default async function MyApplicationDetailPage({ params }: { params: Prom
                     {e.position} - {e.company}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {e.startDate ? new Date(e.startDate).toLocaleDateString() : "?"} -{" "}
-                    {e.endDate ? new Date(e.endDate).toLocaleDateString() : "Present"}
+                    {e.startDate ? new Date(e.startDate).toLocaleDateString("th-TH") : "?"} -{" "}
+                    {e.endDate ? new Date(e.endDate).toLocaleDateString("th-TH") : "ปัจจุบัน"}
                   </Typography>
                   {e.responsibilities && (
                     <Typography variant="body2" sx={{ mt: 0.5 }}>
@@ -123,7 +116,7 @@ export default async function MyApplicationDetailPage({ params }: { params: Prom
           )}
         </Section>
 
-        <Section title="Languages">
+        <Section title="ภาษา">
           {app.languages?.length ? (
             <Stack spacing={1}>
               {app.languages.map((l) => (
@@ -132,8 +125,8 @@ export default async function MyApplicationDetailPage({ params }: { params: Prom
                     {l.language}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Listening: {languageLevelLabel[l.listening]} · Speaking: {languageLevelLabel[l.speaking]} · Reading:{" "}
-                    {languageLevelLabel[l.reading]} · Writing: {languageLevelLabel[l.writing]}
+                    ฟัง: {languageLevelLabel[l.listening]} · พูด: {languageLevelLabel[l.speaking]} · อ่าน:{" "}
+                    {languageLevelLabel[l.reading]} · เขียน: {languageLevelLabel[l.writing]}
                   </Typography>
                 </Paper>
               ))}
@@ -143,7 +136,7 @@ export default async function MyApplicationDetailPage({ params }: { params: Prom
           )}
         </Section>
 
-        <Section title="References">
+        <Section title="ผู้รับรอง">
           {app.references?.length ? (
             <Stack spacing={1}>
               {app.references.map((r) => (
@@ -162,7 +155,7 @@ export default async function MyApplicationDetailPage({ params }: { params: Prom
           )}
         </Section>
 
-        <Section title="Attachments">
+        <Section title="เอกสารแนบ">
           {app.attachments?.length ? (
             <Stack spacing={0.5}>
               {app.attachments.map((a) => (
@@ -207,7 +200,7 @@ function Item({ label, value, fullWidth }: { label: string; value: string; fullW
 function EmptyText() {
   return (
     <Typography variant="body2" color="text.disabled">
-      None provided
+      ไม่มีข้อมูล
     </Typography>
   );
 }

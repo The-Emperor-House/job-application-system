@@ -35,7 +35,7 @@ describe("updateUserRole", () => {
     mockedPrisma.user.findUnique.mockResolvedValue({ id: 1, role: "SUPER_ADMIN" });
     mockedPrisma.user.count.mockResolvedValue(0);
 
-    await expect(updateUserRole(1, "ADMIN")).rejects.toThrow("Cannot remove the last super admin");
+    await expect(updateUserRole(1, "ADMIN")).rejects.toThrow("ไม่สามารถลบผู้ดูแลระบบสูงสุดคนสุดท้ายได้");
     expect(mockedPrisma.user.update).not.toHaveBeenCalled();
   });
 

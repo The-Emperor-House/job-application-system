@@ -30,7 +30,7 @@ export async function addNoteAction(
 ): Promise<NoteFormState> {
   const note = formData.get("note") as string;
   if (!note?.trim()) {
-    return { error: "Note cannot be empty" };
+    return { error: "กรุณากรอกข้อความบันทึก" };
   }
 
   try {
@@ -39,7 +39,7 @@ export async function addNoteAction(
       body: JSON.stringify({ note }),
     });
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Failed to add note" };
+    return { error: err instanceof Error ? err.message : "ไม่สามารถเพิ่มบันทึกได้" };
   }
 
   revalidatePath(`/dashboard/applications/${applicationId}`);

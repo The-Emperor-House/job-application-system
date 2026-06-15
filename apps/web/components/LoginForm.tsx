@@ -45,7 +45,7 @@ export default function LoginForm({ redirectTo }: { redirectTo?: string }) {
         router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
         return;
       }
-      setError(data.message ?? "Login failed");
+      setError(data.message ?? "เข้าสู่ระบบไม่สำเร็จ");
       setSubmitting(false);
       return;
     }
@@ -57,7 +57,7 @@ export default function LoginForm({ redirectTo }: { redirectTo?: string }) {
     <Stack spacing={2}>
       <Stack component="form" onSubmit={handleSubmit} spacing={2}>
         <TextField
-          label="Email"
+          label="อีเมล"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -66,7 +66,7 @@ export default function LoginForm({ redirectTo }: { redirectTo?: string }) {
           size="small"
         />
         <TextField
-          label="Password"
+          label="รหัสผ่าน"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -76,11 +76,11 @@ export default function LoginForm({ redirectTo }: { redirectTo?: string }) {
         />
         {error && <Alert severity="error">{error}</Alert>}
         <Button type="submit" variant="contained" disabled={submitting} fullWidth>
-          {submitting ? "Signing in..." : "Sign in"}
+          {submitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
         </Button>
       </Stack>
 
-      <Divider>or</Divider>
+      <Divider>หรือ</Divider>
 
       <Box sx={{ display: "flex", justifyContent: "center" }}>
         <GoogleSignInButton onSuccess={goTo} onError={setError} />

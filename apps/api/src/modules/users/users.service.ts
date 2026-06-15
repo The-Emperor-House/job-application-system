@@ -21,7 +21,7 @@ const profileSelect = {
 export async function getProfile(userId: number) {
   const user = await prisma.user.findUnique({ where: { id: userId }, select: profileSelect });
   if (!user) {
-    throw new HttpError(404, "User not found");
+    throw new HttpError(404, "ไม่พบผู้ใช้");
   }
   return user;
 }
@@ -75,7 +75,7 @@ export async function addDocument(
 export async function deleteDocument(userId: number, documentId: number) {
   const document = await prisma.userDocument.findUnique({ where: { id: documentId } });
   if (!document || document.userId !== userId) {
-    throw new HttpError(404, "Document not found");
+    throw new HttpError(404, "ไม่พบเอกสาร");
   }
   await prisma.userDocument.delete({ where: { id: documentId } });
   return { ok: true };
@@ -102,7 +102,7 @@ export async function listUsers(filter: { role?: UserRole; page: number; pageSiz
 export async function updateUserRole(id: number, role: UserRole) {
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) {
-    throw new HttpError(404, "User not found");
+    throw new HttpError(404, "ไม่พบผู้ใช้");
   }
 
   if (user.role === UserRole.SUPER_ADMIN && role !== UserRole.SUPER_ADMIN) {
@@ -110,7 +110,7 @@ export async function updateUserRole(id: number, role: UserRole) {
       where: { role: UserRole.SUPER_ADMIN, id: { not: id } },
     });
     if (otherSuperAdmins === 0) {
-      throw new HttpError(400, "Cannot remove the last super admin");
+      throw new HttpError(400, "ไม่สามารถลบผู้ดูแลระบบสูงสุดคนสุดท้ายได้");
     }
   }
 
@@ -120,7 +120,7 @@ export async function updateUserRole(id: number, role: UserRole) {
 export async function updateUserActive(id: number, isActive: boolean) {
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) {
-    throw new HttpError(404, "User not found");
+    throw new HttpError(404, "ไม่พบผู้ใช้");
   }
   return prisma.user.update({ where: { id }, data: { isActive }, select: profileSelect });
 }
@@ -128,12 +128,12 @@ export async function updateUserActive(id: number, isActive: boolean) {
 export async function changePassword(userId: number, currentPassword: string, newPassword: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
-    throw new HttpError(404, "User not found");
+    throw new HttpError(404, "ไม่พบผู้ใช้");
   }
 
   const valid = await bcrypt.compare(currentPassword, user.passwordHash);
   if (!valid) {
-    throw new HttpError(400, "Current password is incorrect");
+    throw new HttpError(400, "รหัสผ่านปัจจุบันไม่ถูกต้อง");
   }
 
   const passwordHash = await bcrypt.hash(newPassword, 10);
@@ -144,7 +144,7 @@ export async function changePassword(userId: number, currentPassword: string, ne
 export async function resetUserPassword(id: number, newPassword: string) {
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) {
-    throw new HttpError(404, "User not found");
+    throw new HttpError(404, "ไม่พบผู้ใช้");
   }
 
   const passwordHash = await bcrypt.hash(newPassword, 10);

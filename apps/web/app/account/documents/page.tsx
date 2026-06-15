@@ -10,7 +10,7 @@ export default async function DocumentsPage() {
   return (
     <div>
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
-        Documents
+        เอกสาร
       </Typography>
       <DocumentUpload />
       <DocumentList documents={documents} />

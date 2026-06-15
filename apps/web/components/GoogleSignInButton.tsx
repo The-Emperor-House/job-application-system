@@ -14,7 +14,7 @@ export default function GoogleSignInButton({
     <GoogleLogin
       onSuccess={async (credentialResponse) => {
         if (!credentialResponse.credential) {
-          onError("Google sign-in failed");
+          onError("เข้าสู่ระบบด้วย Google ไม่สำเร็จ");
           return;
         }
 
@@ -26,13 +26,13 @@ export default function GoogleSignInButton({
 
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          onError(data.message ?? "Google sign-in failed");
+          onError(data.message ?? "เข้าสู่ระบบด้วย Google ไม่สำเร็จ");
           return;
         }
 
         onSuccess(data.user);
       }}
-      onError={() => onError("Google sign-in failed")}
+      onError={() => onError("เข้าสู่ระบบด้วย Google ไม่สำเร็จ")}
     />
   );
 }

@@ -5,6 +5,7 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import { UserRole } from "@/lib/types";
 import { updateUserRoleAction } from "./actions";
+import { userRoleLabel } from "@/lib/labels";
 
 const roles: UserRole[] = ["SUPER_ADMIN", "ADMIN", "HR", "APPLICANT"];
 
@@ -22,7 +23,7 @@ export default function RoleSelector({ userId, role }: { userId: number; role: U
     >
       {roles.map((r) => (
         <MenuItem key={r} value={r}>
-          {r}
+          {userRoleLabel[r] ?? r}
         </MenuItem>
       ))}
     </TextField>

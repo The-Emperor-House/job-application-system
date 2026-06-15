@@ -12,7 +12,7 @@ export default async function ProfilePage() {
   return (
     <div>
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
-        Profile
+        ข้อมูลส่วนตัว
       </Typography>
       <AvatarUpload name={user.name} avatarUrl={user.avatarUrl} />
       <ProfileForm user={user} />
@@ -20,7 +20,7 @@ export default async function ProfilePage() {
       <Divider sx={{ my: 4 }} />
 
       <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-        Change Password
+        เปลี่ยนรหัสผ่าน
       </Typography>
       <ChangePasswordForm />
     </div>

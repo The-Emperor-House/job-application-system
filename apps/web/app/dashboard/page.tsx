@@ -20,17 +20,17 @@ export default async function DashboardPage() {
   return (
     <div>
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
-        Overview
+        ภาพรวม
       </Typography>
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, sm: 4 }}>
-          <StatCard label="Open job postings" value={openJobs} href="/dashboard/jobs" />
+          <StatCard label="ตำแหน่งงานที่เปิดรับ" value={openJobs} href="/dashboard/jobs" />
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
-          <StatCard label="Total applications" value={applications.total} href="/dashboard/applications" />
+          <StatCard label="ใบสมัครทั้งหมด" value={applications.total} href="/dashboard/applications" />
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
-          <StatCard label="Pending review" value={pending} href="/dashboard/applications?status=PENDING" />
+          <StatCard label="รอตรวจสอบ" value={pending} href="/dashboard/applications?status=PENDING" />
         </Grid>
       </Grid>
     </div>

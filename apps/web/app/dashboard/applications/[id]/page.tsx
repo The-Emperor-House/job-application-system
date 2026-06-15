@@ -10,14 +10,7 @@ import { JobApplication } from "@/lib/types";
 import StatusSelector from "../StatusSelector";
 import DeleteApplicationButton from "../DeleteApplicationButton";
 import NoteForm from "../NoteForm";
-
-const languageLevelLabel: Record<string, string> = {
-  NONE: "-",
-  BASIC: "Basic",
-  INTERMEDIATE: "Intermediate",
-  ADVANCED: "Advanced",
-  FLUENT: "Fluent",
-};
+import { languageLevelLabel } from "@/lib/labels";
 
 export default async function ApplicationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -26,7 +19,7 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
   return (
     <div>
       <Link href="/dashboard/applications" style={{ fontSize: 14, color: "var(--mui-palette-text-secondary)" }}>
-        ← Back to applications
+        ← กลับไปยังใบสมัคร
       </Link>
 
       <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", mt: 2, mb: 4 }}>
@@ -35,8 +28,8 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
             {app.fullName}
           </Typography>
           <Typography color="text.secondary">
-            Applied for <Box component="span" sx={{ fontWeight: 500 }}>{app.jobPosting?.title}</Box> on{" "}
-            {new Date(app.createdAt).toLocaleDateString()}
+            สมัครตำแหน่ง <Box component="span" sx={{ fontWeight: 500 }}>{app.jobPosting?.title}</Box> เมื่อ{" "}
+            {new Date(app.createdAt).toLocaleDateString("th-TH")}
           </Typography>
         </div>
         <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
@@ -48,21 +41,21 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
       <Grid container spacing={4}>
         <Grid size={{ xs: 12, md: 8 }}>
           <Stack spacing={4}>
-            <Section title="Personal Information">
+            <Section title="ข้อมูลส่วนตัว">
               <Grid container spacing={1.5}>
-                <Item label="Email" value={app.email} />
-                <Item label="Phone" value={app.phone} />
-                <Item label="Birth date" value={app.birthDate ? new Date(app.birthDate).toLocaleDateString() : "-"} />
-                <Item label="Expected salary" value={app.expectedSalary ?? "-"} />
+                <Item label="อีเมล" value={app.email} />
+                <Item label="เบอร์โทรศัพท์" value={app.phone} />
+                <Item label="วันเกิด" value={app.birthDate ? new Date(app.birthDate).toLocaleDateString("th-TH") : "-"} />
+                <Item label="เงินเดือนที่คาดหวัง" value={app.expectedSalary ?? "-"} />
                 <Item
-                  label="Available start date"
-                  value={app.availableStartDate ? new Date(app.availableStartDate).toLocaleDateString() : "-"}
+                  label="วันที่พร้อมเริ่มงาน"
+                  value={app.availableStartDate ? new Date(app.availableStartDate).toLocaleDateString("th-TH") : "-"}
                 />
-                <Item label="Address" value={app.address ?? "-"} fullWidth />
+                <Item label="ที่อยู่" value={app.address ?? "-"} fullWidth />
               </Grid>
             </Section>
 
-            <Section title="Education">
+            <Section title="การศึกษา">
               {app.education?.length ? (
                 <Stack spacing={1}>
                   {app.education.map((e) => (
@@ -71,7 +64,7 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
                         {e.level} - {e.institution}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {e.major} {e.graduationYear && `· Graduated ${e.graduationYear}`} {e.gpa && `· GPA ${e.gpa}`}
+                        {e.major} {e.graduationYear && `· จบปี ${e.graduationYear}`} {e.gpa && `· เกรดเฉลี่ย ${e.gpa}`}
                       </Typography>
                     </Paper>
                   ))}
@@ -81,7 +74,7 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
               )}
             </Section>
 
-            <Section title="Work Experience">
+            <Section title="ประสบการณ์ทำงาน">
               {app.experience?.length ? (
                 <Stack spacing={1}>
                   {app.experience.map((e) => (
@@ -90,8 +83,8 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
                         {e.position} - {e.company}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {e.startDate ? new Date(e.startDate).toLocaleDateString() : "?"} -{" "}
-                        {e.endDate ? new Date(e.endDate).toLocaleDateString() : "Present"}
+                        {e.startDate ? new Date(e.startDate).toLocaleDateString("th-TH") : "?"} -{" "}
+                        {e.endDate ? new Date(e.endDate).toLocaleDateString("th-TH") : "ปัจจุบัน"}
                       </Typography>
                       {e.responsibilities && (
                         <Typography variant="body2" sx={{ mt: 0.5 }}>
@@ -106,7 +99,7 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
               )}
             </Section>
 
-            <Section title="Languages">
+            <Section title="ภาษา">
               {app.languages?.length ? (
                 <Stack spacing={1}>
                   {app.languages.map((l) => (
@@ -115,8 +108,8 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
                         {l.language}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Listening: {languageLevelLabel[l.listening]} · Speaking: {languageLevelLabel[l.speaking]} · Reading:{" "}
-                        {languageLevelLabel[l.reading]} · Writing: {languageLevelLabel[l.writing]}
+                        ฟัง: {languageLevelLabel[l.listening]} · พูด: {languageLevelLabel[l.speaking]} · อ่าน:{" "}
+                        {languageLevelLabel[l.reading]} · เขียน: {languageLevelLabel[l.writing]}
                       </Typography>
                     </Paper>
                   ))}
@@ -126,7 +119,7 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
               )}
             </Section>
 
-            <Section title="References">
+            <Section title="บุคคลอ้างอิง">
               {app.references?.length ? (
                 <Stack spacing={1}>
                   {app.references.map((r) => (
@@ -149,7 +142,7 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
 
         <Grid size={{ xs: 12, md: 4 }}>
           <Stack spacing={4}>
-            <Section title="Photo">
+            <Section title="รูปถ่าย">
               {app.photoUrl ? (
                 <Box
                   component="img"
@@ -162,7 +155,7 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
               )}
             </Section>
 
-            <Section title="Attachments">
+            <Section title="ไฟล์ที่แนบมา">
               {app.attachments?.length ? (
                 <Stack spacing={0.5}>
                   {app.attachments.map((a) => (
@@ -176,7 +169,7 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
               )}
             </Section>
 
-            <Section title="Applicant Documents">
+            <Section title="เอกสารของผู้สมัคร">
               {app.user?.documents.length ? (
                 <Stack spacing={0.5}>
                   {app.user.documents.map((d) => (
@@ -193,14 +186,14 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
               )}
             </Section>
 
-            <Section title="Internal Notes">
+            <Section title="บันทึกภายใน">
               <Stack spacing={1.5} sx={{ mb: 2 }}>
                 {app.notes?.length ? (
                   app.notes.map((n) => (
                     <Paper key={n.id} variant="outlined" sx={{ p: 1.5 }}>
                       <Typography variant="body2">{n.note}</Typography>
                       <Typography variant="caption" color="text.disabled" sx={{ display: "block", mt: 0.5 }}>
-                        {n.user.name} · {new Date(n.createdAt).toLocaleString()}
+                        {n.user.name} · {new Date(n.createdAt).toLocaleString("th-TH")}
                       </Typography>
                     </Paper>
                   ))
@@ -244,7 +237,7 @@ function Item({ label, value, fullWidth }: { label: string; value: string; fullW
 function EmptyText() {
   return (
     <Typography variant="body2" color="text.disabled">
-      None provided
+      ไม่มีข้อมูล
     </Typography>
   );
 }

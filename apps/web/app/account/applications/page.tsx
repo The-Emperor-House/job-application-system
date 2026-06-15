@@ -7,6 +7,7 @@ import Paper from "@mui/material/Paper";
 import Divider from "@mui/material/Divider";
 import { authApi } from "@/lib/api";
 import { JobApplication } from "@/lib/types";
+import { applicationStatusLabel } from "@/lib/labels";
 
 export default async function MyApplicationsPage() {
   const applications = await authApi<JobApplication[]>("/api/applications/my");
@@ -14,11 +15,11 @@ export default async function MyApplicationsPage() {
   return (
     <div>
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
-        My Applications
+        ใบสมัครของฉัน
       </Typography>
 
       {applications.length === 0 ? (
-        <Typography color="text.secondary">You haven&apos;t applied to any positions yet.</Typography>
+        <Typography color="text.secondary">คุณยังไม่ได้สมัครงานตำแหน่งใด</Typography>
       ) : (
         <Paper variant="outlined">
           <Stack>
@@ -41,10 +42,14 @@ export default async function MyApplicationsPage() {
                   <div>
                     <Typography sx={{ fontWeight: 500 }}>{app.jobPosting?.title}</Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Applied {new Date(app.createdAt).toLocaleDateString()}
+                      สมัครเมื่อ {new Date(app.createdAt).toLocaleDateString("th-TH")}
                     </Typography>
                   </div>
-                  <Chip label={app.status} size="small" color={app.status === "RETURNED" ? "warning" : "default"} />
+                  <Chip
+                    label={applicationStatusLabel[app.status] ?? app.status}
+                    size="small"
+                    color={app.status === "RETURNED" ? "warning" : "default"}
+                  />
                 </Box>
               </Box>
             ))}

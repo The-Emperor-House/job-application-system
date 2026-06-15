@@ -22,7 +22,7 @@ export async function listAllJobs() {
 export async function getJobById(id: number) {
   const job = await prisma.jobPosting.findUnique({ where: { id } });
   if (!job) {
-    throw new HttpError(404, "Job posting not found");
+    throw new HttpError(404, "ไม่พบตำแหน่งงาน");
   }
   return job;
 }
@@ -64,7 +64,7 @@ export async function deleteJob(id: number) {
 
   const applicationCount = await prisma.jobApplication.count({ where: { jobPostingId: id } });
   if (applicationCount > 0) {
-    throw new HttpError(400, "Cannot delete a job posting that has applications. Close it to hide it instead.");
+    throw new HttpError(400, "ไม่สามารถลบตำแหน่งงานที่มีใบสมัครแล้วได้ กรุณาปิดรับสมัครเพื่อซ่อนตำแหน่งงานนี้แทน");
   }
 
   await prisma.jobPosting.delete({ where: { id } });

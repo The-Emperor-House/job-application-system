@@ -5,6 +5,7 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import { ApplicationStatus } from "@/lib/types";
 import { updateStatusAction } from "./actions";
+import { applicationStatusLabel } from "@/lib/labels";
 
 const statuses: ApplicationStatus[] = ["PENDING", "REVIEWING", "INTERVIEW", "OFFERED", "REJECTED", "HIRED", "RETURNED"];
 
@@ -22,7 +23,7 @@ export default function StatusSelector({ applicationId, status }: { applicationI
     >
       {statuses.map((s) => (
         <MenuItem key={s} value={s}>
-          {s}
+          {applicationStatusLabel[s] ?? s}
         </MenuItem>
       ))}
     </TextField>

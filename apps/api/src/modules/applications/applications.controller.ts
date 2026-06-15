@@ -56,6 +56,24 @@ export async function updateMyApplicationHandler(req: Request, res: Response, ne
   }
 }
 
+export async function deleteMyAttachmentHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    await applicationsService.deleteMyAttachment(Number(req.params.id), req.user!.id, Number(req.params.attachmentId));
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteMyPhotoHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    await applicationsService.deleteMyPhoto(Number(req.params.id), req.user!.id);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function listApplicationsHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const query = listApplicationsQuerySchema.parse(req.query);
