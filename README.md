@@ -142,7 +142,7 @@ This project is designed to be deployed across managed cloud services:
 
 ```
 Staff (HR/Admin):  admin@example.com / Admin123!
-Super Admin:       superadmin@example.com / SuperAdmin123!
+Super Admin:       superadmin@example.com / g8l
 ```
 
 Change these immediately in any environment beyond local development.

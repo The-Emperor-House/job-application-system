@@ -44,7 +44,7 @@ export default async function MyApplicationsPage() {
                       Applied {new Date(app.createdAt).toLocaleDateString()}
                     </Typography>
                   </div>
-                  <Chip label={app.status} size="small" />
+                  <Chip label={app.status} size="small" color={app.status === "RETURNED" ? "warning" : "default"} />
                 </Box>
               </Box>
             ))}

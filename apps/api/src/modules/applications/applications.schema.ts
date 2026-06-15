@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+const applicationStatus = z.enum(["PENDING", "REVIEWING", "INTERVIEW", "OFFERED", "REJECTED", "HIRED", "RETURNED"]);
+
 const languageLevel = z.enum(["NONE", "BASIC", "INTERMEDIATE", "ADVANCED", "FLUENT"]);
 
 const educationSchema = z.object({
@@ -50,8 +52,12 @@ export const createApplicationSchema = z.object({
 
 export type CreateApplicationInput = z.infer<typeof createApplicationSchema>;
 
+export const updateApplicationSchema = createApplicationSchema.omit({ jobPostingId: true });
+
+export type UpdateApplicationInput = z.infer<typeof updateApplicationSchema>;
+
 export const updateStatusSchema = z.object({
-  status: z.enum(["PENDING", "REVIEWING", "INTERVIEW", "OFFERED", "REJECTED", "HIRED"]),
+  status: applicationStatus,
 });
 
 export const addNoteSchema = z.object({
@@ -60,5 +66,7 @@ export const addNoteSchema = z.object({
 
 export const listApplicationsQuerySchema = z.object({
   jobPostingId: z.coerce.number().int().positive().optional(),
-  status: z.enum(["PENDING", "REVIEWING", "INTERVIEW", "OFFERED", "REJECTED", "HIRED"]).optional(),
+  status: applicationStatus.optional(),
+  page: z.coerce.number().int().positive().default(1),
+  pageSize: z.coerce.number().int().positive().max(100).default(20),
 });

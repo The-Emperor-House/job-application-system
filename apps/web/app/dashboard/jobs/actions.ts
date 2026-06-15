@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { authApi } from "@/lib/api";
+import { authApi, ApiError } from "@/lib/api";
 
 export interface JobFormState {
   error?: string;
@@ -55,7 +55,24 @@ export async function updateJobAction(
   redirect("/dashboard/jobs");
 }
 
-export async function deleteJobAction(jobId: number) {
-  await authApi(`/api/jobs/${jobId}`, { method: "DELETE" });
+export async function deleteJobAction(jobId: number): Promise<JobFormState> {
+  try {
+    await authApi(`/api/jobs/${jobId}`, { method: "DELETE" });
+  } catch (err) {
+    return { error: err instanceof ApiError ? err.message : "Failed to delete job posting" };
+  }
+
   revalidatePath("/dashboard/jobs");
+  return {};
+}
+
+export async function setJobStatusAction(jobId: number, status: "OPEN" | "CLOSED"): Promise<JobFormState> {
+  try {
+    await authApi(`/api/jobs/${jobId}`, { method: "PATCH", body: JSON.stringify({ status }) });
+  } catch (err) {
+    return { error: err instanceof ApiError ? err.message : "Failed to update job posting" };
+  }
+
+  revalidatePath("/dashboard/jobs");
+  return {};
 }

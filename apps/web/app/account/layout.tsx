@@ -30,8 +30,12 @@ export default async function AccountLayout({ children }: { children: React.Reac
       <AppBar position="static" color="default" elevation={0} sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Toolbar sx={{ maxWidth: 768, width: "100%", mx: "auto" }}>
           <Stack direction="row" spacing={3} sx={{ alignItems: "center", flex: 1 }}>
-            <Typography component={NavLink} href="/account" sx={{ fontWeight: 700, textDecoration: "none", color: "inherit" }}>
-              My Account
+            <Stack component={NavLink} href="/account" direction="row" spacing={1} sx={{ alignItems: "center", textDecoration: "none", color: "inherit" }}>
+              <Box component="img" src="/EMP_Logo.svg" alt="Logo" sx={{ height: 32 }} />
+              <Typography sx={{ fontWeight: 700 }}>My Account</Typography>
+            </Stack>
+            <Typography component={NavLink} href="/" variant="body2" color="text.secondary" sx={{ textDecoration: "none" }}>
+              Open Positions
             </Typography>
             <Typography component={NavLink} href="/account/profile" variant="body2" color="text.secondary" sx={{ textDecoration: "none" }}>
               Profile

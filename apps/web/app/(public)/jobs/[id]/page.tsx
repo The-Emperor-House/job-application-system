@@ -62,7 +62,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         </Box>
       )}
 
-      {job.status === "OPEN" ? (
+      {job.status === "OPEN" && (!job.closingDate || new Date(job.closingDate) >= new Date()) ? (
         <Button component={NavLink} href={`/jobs/${job.id}/apply`} variant="contained" size="large" sx={{ mt: 5 }}>
           Apply now
         </Button>

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import * as applicationsService from "./applications.service";
 import {
   createApplicationSchema,
+  updateApplicationSchema,
   updateStatusSchema,
   addNoteSchema,
   listApplicationsQuerySchema,
@@ -46,6 +47,15 @@ export async function getMyApplicationHandler(req: Request, res: Response, next:
   }
 }
 
+export async function updateMyApplicationHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = updateApplicationSchema.parse(req.body);
+    res.json(await applicationsService.updateApplication(Number(req.params.id), req.user!.id, data));
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function listApplicationsHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const query = listApplicationsQuerySchema.parse(req.query);
@@ -67,6 +77,15 @@ export async function updateStatusHandler(req: Request, res: Response, next: Nex
   try {
     const { status } = updateStatusSchema.parse(req.body);
     res.json(await applicationsService.updateApplicationStatus(Number(req.params.id), status));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteApplicationHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    await applicationsService.deleteApplication(Number(req.params.id));
+    res.status(204).send();
   } catch (err) {
     next(err);
   }

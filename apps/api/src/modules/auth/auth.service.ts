@@ -35,6 +35,9 @@ function generateOtp(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+const MAX_OTP_ATTEMPTS = 5;
+const OTP_RESEND_COOLDOWN_MS = 60 * 1000;
+
 export async function login(email: string, password: string) {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
@@ -99,13 +102,21 @@ export async function verifyOtp(email: string, otp: string) {
     throw new HttpError(400, "Verification code expired. Please request a new one.");
   }
 
+  if (user.otpAttempts >= MAX_OTP_ATTEMPTS) {
+    throw new HttpError(429, "Too many incorrect attempts. Please request a new code.");
+  }
+
   if (user.otpCode !== otp) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { otpAttempts: user.otpAttempts + 1 },
+    });
     throw new HttpError(400, "Invalid verification code");
   }
 
   const updated = await prisma.user.update({
     where: { id: user.id },
-    data: { emailVerified: true, otpCode: null, otpExpiresAt: null },
+    data: { emailVerified: true, otpCode: null, otpExpiresAt: null, otpAttempts: 0 },
   });
 
   return toAuthResult(updated);
@@ -121,12 +132,19 @@ export async function resendOtp(email: string) {
     throw new HttpError(400, "Email already verified");
   }
 
+  if (user.otpExpiresAt) {
+    const sentAt = user.otpExpiresAt.getTime() - env.otpExpiresMinutes * 60 * 1000;
+    if (Date.now() - sentAt < OTP_RESEND_COOLDOWN_MS) {
+      throw new HttpError(429, "Please wait before requesting a new code");
+    }
+  }
+
   const otpCode = generateOtp();
   const otpExpiresAt = new Date(Date.now() + env.otpExpiresMinutes * 60 * 1000);
 
   await prisma.user.update({
     where: { id: user.id },
-    data: { otpCode, otpExpiresAt },
+    data: { otpCode, otpExpiresAt, otpAttempts: 0 },
   });
 
   await sendOtpEmail(user.email, otpCode);

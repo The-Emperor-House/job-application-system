@@ -30,9 +30,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <AppBar position="static" color="default" elevation={0} sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Toolbar sx={{ maxWidth: 1024, width: "100%", mx: "auto" }}>
           <Stack direction="row" spacing={3} sx={{ alignItems: "center", flex: 1 }}>
-            <Typography component={NavLink} href="/dashboard" sx={{ fontWeight: 700, textDecoration: "none", color: "inherit" }}>
-              HR Dashboard
-            </Typography>
+            <Stack component={NavLink} href="/dashboard" direction="row" spacing={1} sx={{ alignItems: "center", textDecoration: "none", color: "inherit" }}>
+              <Box component="img" src="/EMP_Logo.svg" alt="Logo" sx={{ height: 32 }} />
+              <Typography sx={{ fontWeight: 700 }}>HR Dashboard</Typography>
+            </Stack>
             <Typography component={NavLink} href="/dashboard/jobs" variant="body2" color="text.secondary" sx={{ textDecoration: "none" }}>
               Job Postings
             </Typography>

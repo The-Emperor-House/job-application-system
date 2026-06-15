@@ -8,6 +8,7 @@ import Chip from "@mui/material/Chip";
 import { authApi } from "@/lib/api";
 import { JobApplication } from "@/lib/types";
 import StatusSelector from "../StatusSelector";
+import DeleteApplicationButton from "../DeleteApplicationButton";
 import NoteForm from "../NoteForm";
 
 const languageLevelLabel: Record<string, string> = {
@@ -38,7 +39,10 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
             {new Date(app.createdAt).toLocaleDateString()}
           </Typography>
         </div>
-        <StatusSelector applicationId={app.id} status={app.status} />
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
+          <StatusSelector applicationId={app.id} status={app.status} />
+          <DeleteApplicationButton applicationId={app.id} />
+        </Stack>
       </Box>
 
       <Grid container spacing={4}>

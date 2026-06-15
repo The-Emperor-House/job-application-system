@@ -75,7 +75,13 @@ export async function deleteDocumentHandler(req: Request, res: Response, next: N
 export async function listUsersHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const query = listUsersQuerySchema.parse(req.query);
-    res.json(await usersService.listUsers({ role: query.role as UserRole | undefined }));
+    res.json(
+      await usersService.listUsers({
+        role: query.role as UserRole | undefined,
+        page: query.page,
+        pageSize: query.pageSize,
+      })
+    );
   } catch (err) {
     next(err);
   }

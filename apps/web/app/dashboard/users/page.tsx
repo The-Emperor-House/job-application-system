@@ -5,14 +5,27 @@ import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
+import { redirect } from "next/navigation";
 import { authApi } from "@/lib/api";
-import { AuthUser } from "@/lib/types";
+import { AuthUser, PaginatedResult } from "@/lib/types";
 import RoleSelector from "./RoleSelector";
 import ActiveToggle from "./ActiveToggle";
 import ResetPasswordButton from "./ResetPasswordButton";
+import PaginationControl from "@/components/PaginationControl";
 
-export default async function UsersPage() {
-  const users = await authApi<AuthUser[]>("/api/users");
+export default async function UsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const currentUser = await authApi<AuthUser>("/api/auth/me");
+  if (currentUser.role !== "SUPER_ADMIN") {
+    redirect("/dashboard");
+  }
+
+  const { page } = await searchParams;
+  const result = await authApi<PaginatedResult<AuthUser>>(`/api/users?page=${page ?? "1"}`);
+  const users = result.data;
 
   return (
     <div>
@@ -52,6 +65,8 @@ export default async function UsersPage() {
           </TableBody>
         </Table>
       </Paper>
+
+      <PaginationControl page={result.page} totalPages={result.totalPages} basePath="/dashboard/users" />
     </div>
   );
 }

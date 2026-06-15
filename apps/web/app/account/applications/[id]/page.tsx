@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NavLink from "@/components/NavLink";
 import { notFound } from "next/navigation";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -6,6 +7,8 @@ import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 import Paper from "@mui/material/Paper";
 import Chip from "@mui/material/Chip";
+import Alert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
 import { authApi, ApiError } from "@/lib/api";
 import { JobApplication } from "@/lib/types";
 
@@ -43,8 +46,23 @@ export default async function MyApplicationDetailPage({ params }: { params: Prom
           </Typography>
           <Typography color="text.secondary">Applied on {new Date(app.createdAt).toLocaleDateString()}</Typography>
         </div>
-        <Chip label={app.status} color="primary" />
+        <Chip label={app.status} color={app.status === "RETURNED" ? "warning" : "primary"} />
       </Box>
+
+      {app.status === "RETURNED" && (
+        <Alert
+          severity="warning"
+          sx={{ mb: 4 }}
+          action={
+            <Button component={NavLink} href={`/account/applications/${app.id}/edit`} color="inherit" size="small">
+              Edit & resubmit
+            </Button>
+          }
+        >
+          This application was returned for revision.
+          {app.notes?.length ? ` Feedback: ${app.notes[0].note}` : " Please review and update the details below."}
+        </Alert>
+      )}
 
       <Stack spacing={4}>
         <Section title="Personal Information">

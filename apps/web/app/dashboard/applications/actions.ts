@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { authApi } from "@/lib/api";
 
 export interface NoteFormState {
@@ -14,6 +15,12 @@ export async function updateStatusAction(applicationId: number, status: string) 
   });
   revalidatePath(`/dashboard/applications/${applicationId}`);
   revalidatePath("/dashboard/applications");
+}
+
+export async function deleteApplicationAction(applicationId: number) {
+  await authApi(`/api/applications/${applicationId}`, { method: "DELETE" });
+  revalidatePath("/dashboard/applications");
+  redirect("/dashboard/applications");
 }
 
 export async function addNoteAction(

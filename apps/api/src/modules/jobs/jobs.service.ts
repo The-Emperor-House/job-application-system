@@ -4,7 +4,10 @@ import { JobStatus } from "@prisma/client";
 
 export async function listOpenJobs() {
   return prisma.jobPosting.findMany({
-    where: { status: JobStatus.OPEN },
+    where: {
+      status: JobStatus.OPEN,
+      OR: [{ closingDate: null }, { closingDate: { gte: new Date() } }],
+    },
     orderBy: { createdAt: "desc" },
   });
 }
@@ -58,5 +61,11 @@ export async function updateJob(id: number, data: Partial<JobInput>) {
 
 export async function deleteJob(id: number) {
   await getJobById(id);
+
+  const applicationCount = await prisma.jobApplication.count({ where: { jobPostingId: id } });
+  if (applicationCount > 0) {
+    throw new HttpError(400, "Cannot delete a job posting that has applications. Close it to hide it instead.");
+  }
+
   await prisma.jobPosting.delete({ where: { id } });
 }

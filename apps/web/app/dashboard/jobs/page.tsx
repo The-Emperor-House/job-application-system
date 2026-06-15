@@ -4,10 +4,11 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
+import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import { authApi } from "@/lib/api";
 import { JobPosting } from "@/lib/types";
-import DeleteJobButton from "./DeleteJobButton";
+import JobActions from "./JobActions";
 
 export default async function AdminJobsPage() {
   const jobs = await authApi<JobPosting[]>("/api/jobs/admin/all");
@@ -30,16 +31,27 @@ export default async function AdminJobsPage() {
               {i > 0 && <Divider />}
               <Box sx={{ p: 2, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
-                  <Typography sx={{ fontWeight: 500 }}>{job.title}</Typography>
+                  <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+                    <Typography sx={{ fontWeight: 500 }}>{job.title}</Typography>
+                    <Chip
+                      label={job.status}
+                      size="small"
+                      color={job.status === "OPEN" ? "success" : "default"}
+                      variant="outlined"
+                    />
+                    {job.status === "OPEN" && job.closingDate && new Date(job.closingDate) < new Date() && (
+                      <Chip label="Expired" size="small" color="warning" variant="outlined" />
+                    )}
+                  </Stack>
                   <Typography variant="body2" color="text.secondary">
-                    {job.department} · {job.status} · {job._count?.applications ?? 0} applications
+                    {job.department} · {job._count?.applications ?? 0} applications
                   </Typography>
                 </div>
                 <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
                   <Button component={NavLink} href={`/dashboard/jobs/${job.id}/edit`} size="small">
                     Edit
                   </Button>
-                  <DeleteJobButton jobId={job.id} />
+                  <JobActions jobId={job.id} status={job.status} />
                 </Stack>
               </Box>
             </Box>

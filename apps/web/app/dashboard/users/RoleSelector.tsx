@@ -13,6 +13,7 @@ export default function RoleSelector({ userId, role }: { userId: number; role: U
 
   return (
     <TextField
+      key={role}
       select
       defaultValue={role}
       disabled={pending}

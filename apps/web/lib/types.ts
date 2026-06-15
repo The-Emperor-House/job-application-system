@@ -1,6 +1,6 @@
 export type EmploymentType = "FULL_TIME" | "PART_TIME" | "CONTRACT" | "INTERNSHIP";
 export type JobStatus = "OPEN" | "CLOSED";
-export type ApplicationStatus = "PENDING" | "REVIEWING" | "INTERVIEW" | "OFFERED" | "REJECTED" | "HIRED";
+export type ApplicationStatus = "PENDING" | "REVIEWING" | "INTERVIEW" | "OFFERED" | "REJECTED" | "HIRED" | "RETURNED";
 export type LanguageLevel = "NONE" | "BASIC" | "INTERMEDIATE" | "ADVANCED" | "FLUENT";
 export type UserRole = "SUPER_ADMIN" | "ADMIN" | "HR" | "APPLICANT";
 export type DocumentCategory = "RESUME" | "PORTFOLIO" | "CERTIFICATE" | "OTHER";
@@ -114,4 +114,12 @@ export interface UserDocument {
   fileUrl: string;
   fileType: string;
   uploadedAt: string;
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }

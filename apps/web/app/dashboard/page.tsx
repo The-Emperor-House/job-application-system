@@ -5,16 +5,17 @@ import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
 import { authApi } from "@/lib/api";
-import { JobApplication, JobPosting } from "@/lib/types";
+import { JobApplication, JobPosting, PaginatedResult } from "@/lib/types";
 
 export default async function DashboardPage() {
-  const [jobs, applications] = await Promise.all([
+  const [jobs, applications, pendingApplications] = await Promise.all([
     authApi<JobPosting[]>("/api/jobs/admin/all"),
-    authApi<JobApplication[]>("/api/applications"),
+    authApi<PaginatedResult<JobApplication>>("/api/applications?pageSize=1"),
+    authApi<PaginatedResult<JobApplication>>("/api/applications?status=PENDING&pageSize=1"),
   ]);
 
   const openJobs = jobs.filter((j) => j.status === "OPEN").length;
-  const pending = applications.filter((a) => a.status === "PENDING").length;
+  const pending = pendingApplications.total;
 
   return (
     <div>
@@ -26,7 +27,7 @@ export default async function DashboardPage() {
           <StatCard label="Open job postings" value={openJobs} href="/dashboard/jobs" />
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
-          <StatCard label="Total applications" value={applications.length} href="/dashboard/applications" />
+          <StatCard label="Total applications" value={applications.total} href="/dashboard/applications" />
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
           <StatCard label="Pending review" value={pending} href="/dashboard/applications?status=PENDING" />

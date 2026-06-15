@@ -20,6 +20,8 @@ export const addDocumentSchema = z.object({
 
 export const listUsersQuerySchema = z.object({
   role: z.enum(["SUPER_ADMIN", "ADMIN", "HR", "APPLICANT"]).optional(),
+  page: z.coerce.number().int().positive().default(1),
+  pageSize: z.coerce.number().int().positive().max(100).default(20),
 });
 
 export const changePasswordSchema = z.object({

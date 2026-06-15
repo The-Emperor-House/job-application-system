@@ -3,6 +3,7 @@ import { DocumentCategory, UserRole } from "@prisma/client";
 import { prisma } from "../../config/prisma";
 import { HttpError } from "../../middlewares/errorHandler";
 import { uploadBufferToCloudinary } from "../../config/cloudinary";
+import { sendPasswordResetNotification } from "../../utils/mailer";
 
 const profileSelect = {
   id: true,
@@ -80,12 +81,22 @@ export async function deleteDocument(userId: number, documentId: number) {
   return { ok: true };
 }
 
-export async function listUsers(filter: { role?: UserRole }) {
-  return prisma.user.findMany({
-    where: { role: filter.role },
-    select: profileSelect,
-    orderBy: { createdAt: "desc" },
-  });
+export async function listUsers(filter: { role?: UserRole; page: number; pageSize: number }) {
+  const { role, page, pageSize } = filter;
+  const where = { role };
+
+  const [data, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      select: profileSelect,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.user.count({ where }),
+  ]);
+
+  return { data, total, page, pageSize, totalPages: Math.max(1, Math.ceil(total / pageSize)) };
 }
 
 export async function updateUserRole(id: number, role: UserRole) {
@@ -93,6 +104,16 @@ export async function updateUserRole(id: number, role: UserRole) {
   if (!user) {
     throw new HttpError(404, "User not found");
   }
+
+  if (user.role === UserRole.SUPER_ADMIN && role !== UserRole.SUPER_ADMIN) {
+    const otherSuperAdmins = await prisma.user.count({
+      where: { role: UserRole.SUPER_ADMIN, id: { not: id } },
+    });
+    if (otherSuperAdmins === 0) {
+      throw new HttpError(400, "Cannot remove the last super admin");
+    }
+  }
+
   return prisma.user.update({ where: { id }, data: { role }, select: profileSelect });
 }
 
@@ -128,5 +149,6 @@ export async function resetUserPassword(id: number, newPassword: string) {
 
   const passwordHash = await bcrypt.hash(newPassword, 10);
   await prisma.user.update({ where: { id }, data: { passwordHash } });
+  await sendPasswordResetNotification(user.email, user.name);
   return { ok: true };
 }

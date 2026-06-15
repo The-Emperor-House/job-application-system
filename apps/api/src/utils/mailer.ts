@@ -36,3 +36,20 @@ export async function sendOtpEmail(to: string, otp: string): Promise<void> {
     html: `<p>Your verification code is <strong>${otp}</strong>.</p><p>It expires in ${env.otpExpiresMinutes} minutes.</p>`,
   });
 }
+
+export async function sendPasswordResetNotification(to: string, name: string): Promise<void> {
+  const mailer = getTransporter();
+
+  if (!mailer) {
+    console.log(`[PASSWORD RESET] Password for ${to} was reset by an administrator`);
+    return;
+  }
+
+  await mailer.sendMail({
+    from: env.smtp.from,
+    to,
+    subject: "Your password has been reset",
+    text: `Hi ${name},\n\nYour password was just reset by an administrator. If you did not expect this, please contact support immediately.`,
+    html: `<p>Hi ${name},</p><p>Your password was just reset by an administrator. If you did not expect this, please contact support immediately.</p>`,
+  });
+}

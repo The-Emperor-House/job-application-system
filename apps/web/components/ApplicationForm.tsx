@@ -11,7 +11,7 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
-import { AuthUser } from "@/lib/types";
+import { AuthUser, JobApplication } from "@/lib/types";
 
 interface EducationRow {
   level: string;
@@ -51,23 +51,75 @@ const emptyReference: ReferenceRow = { name: "", relationship: "", phone: "", co
 
 const languageLevels = ["NONE", "BASIC", "INTERMEDIATE", "ADVANCED", "FLUENT"];
 
-export default function ApplicationForm({ jobPostingId, profile }: { jobPostingId: number; profile?: AuthUser }) {
+/** Converts an ISO date string to the yyyy-MM-dd format expected by <input type="date">. */
+function toDateInputValue(value: string | null | undefined) {
+  return value ? value.slice(0, 10) : "";
+}
+
+export default function ApplicationForm({
+  jobPostingId,
+  profile,
+  application,
+}: {
+  jobPostingId: number;
+  profile?: AuthUser;
+  application?: JobApplication;
+}) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [fullName, setFullName] = useState(profile?.name ?? "");
-  const [email, setEmail] = useState(profile?.email ?? "");
-  const [phone, setPhone] = useState(profile?.phone ?? "");
-  const [birthDate, setBirthDate] = useState("");
-  const [address, setAddress] = useState(profile?.address ?? "");
-  const [expectedSalary, setExpectedSalary] = useState("");
-  const [availableStartDate, setAvailableStartDate] = useState("");
+  const [fullName, setFullName] = useState(application?.fullName ?? profile?.name ?? "");
+  const [email, setEmail] = useState(application?.email ?? profile?.email ?? "");
+  const [phone, setPhone] = useState(application?.phone ?? profile?.phone ?? "");
+  const [birthDate, setBirthDate] = useState(toDateInputValue(application?.birthDate));
+  const [address, setAddress] = useState(application?.address ?? profile?.address ?? "");
+  const [expectedSalary, setExpectedSalary] = useState(application?.expectedSalary ?? "");
+  const [availableStartDate, setAvailableStartDate] = useState(toDateInputValue(application?.availableStartDate));
 
-  const [education, setEducation] = useState<EducationRow[]>([{ ...emptyEducation }]);
-  const [experience, setExperience] = useState<ExperienceRow[]>([{ ...emptyExperience }]);
-  const [languages, setLanguages] = useState<LanguageRow[]>([{ ...emptyLanguage }]);
-  const [references, setReferences] = useState<ReferenceRow[]>([{ ...emptyReference }]);
+  const [education, setEducation] = useState<EducationRow[]>(
+    application?.education?.length
+      ? application.education.map((e) => ({
+          level: e.level,
+          institution: e.institution,
+          major: e.major ?? "",
+          graduationYear: e.graduationYear ?? "",
+          gpa: e.gpa ?? "",
+        }))
+      : [{ ...emptyEducation }]
+  );
+  const [experience, setExperience] = useState<ExperienceRow[]>(
+    application?.experience?.length
+      ? application.experience.map((e) => ({
+          company: e.company,
+          position: e.position,
+          startDate: toDateInputValue(e.startDate),
+          endDate: toDateInputValue(e.endDate),
+          responsibilities: e.responsibilities ?? "",
+        }))
+      : [{ ...emptyExperience }]
+  );
+  const [languages, setLanguages] = useState<LanguageRow[]>(
+    application?.languages?.length
+      ? application.languages.map((l) => ({
+          language: l.language,
+          listening: l.listening,
+          speaking: l.speaking,
+          reading: l.reading,
+          writing: l.writing,
+        }))
+      : [{ ...emptyLanguage }]
+  );
+  const [references, setReferences] = useState<ReferenceRow[]>(
+    application?.references?.length
+      ? application.references.map((r) => ({
+          name: r.name,
+          relationship: r.relationship ?? "",
+          phone: r.phone ?? "",
+          company: r.company ?? "",
+        }))
+      : [{ ...emptyReference }]
+  );
 
   const [resume, setResume] = useState<File | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
@@ -78,44 +130,75 @@ export default function ApplicationForm({ jobPostingId, profile }: { jobPostingI
     setRows(next);
   }
 
+  function validate(): string | null {
+    if (!fullName.trim() || !email.trim() || !phone.trim()) {
+      return "Please fill in your name, email, and phone number.";
+    }
+
+    const hasEducation = education.some((row) => row.level.trim() && row.institution.trim());
+    if (!hasEducation) {
+      return "Please add at least one education entry.";
+    }
+
+    if (!resume && !application?.attachments?.length) {
+      return "Please upload your resume.";
+    }
+
+    return null;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
 
     try {
-      const res = await fetch(`/api/applications`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jobPostingId,
-          fullName,
-          email,
-          phone,
-          birthDate: birthDate || undefined,
-          address: address || undefined,
-          expectedSalary: expectedSalary || undefined,
-          availableStartDate: availableStartDate || undefined,
-          education: education.filter((row) => row.level && row.institution),
-          experience: experience.filter((row) => row.company && row.position),
-          languages: languages.filter((row) => row.language),
-          references: references.filter((row) => row.name),
-        }),
-      });
+      const payload = {
+        fullName,
+        email,
+        phone,
+        birthDate: birthDate || undefined,
+        address: address || undefined,
+        expectedSalary: expectedSalary || undefined,
+        availableStartDate: availableStartDate || undefined,
+        education: education.filter((row) => row.level && row.institution),
+        experience: experience.filter((row) => row.company && row.position),
+        languages: languages.filter((row) => row.language),
+        references: references.filter((row) => row.name),
+      };
+
+      const res = application
+        ? await fetch(`/api/applications/my/${application.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          })
+        : await fetch(`/api/applications`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jobPostingId, ...payload }),
+          });
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.message ?? "Failed to submit application");
       }
 
-      const application = await res.json();
+      const saved = await res.json();
 
       if (resume || photo) {
         const formData = new FormData();
         if (resume) formData.append("resume", resume);
         if (photo) formData.append("photo", photo);
 
-        const uploadRes = await fetch(`/api/applications/${application.id}/attachments`, {
+        const uploadRes = await fetch(`/api/applications/${saved.id}/attachments`, {
           method: "POST",
           body: formData,
         });
@@ -125,7 +208,7 @@ export default function ApplicationForm({ jobPostingId, profile }: { jobPostingI
         }
       }
 
-      router.push("/apply/success");
+      router.push(application ? `/account/applications/${saved.id}` : "/apply/success");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
       setSubmitting(false);
@@ -377,7 +460,7 @@ export default function ApplicationForm({ jobPostingId, profile }: { jobPostingI
       {error && <Alert severity="error">{error}</Alert>}
 
       <Button type="submit" variant="contained" size="large" disabled={submitting} sx={{ alignSelf: "flex-start" }}>
-        {submitting ? "Submitting..." : "Submit application"}
+        {submitting ? "Submitting..." : application ? "Resubmit application" : "Submit application"}
       </Button>
     </Stack>
   );

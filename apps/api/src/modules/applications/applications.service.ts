@@ -2,7 +2,7 @@ import { prisma } from "../../config/prisma";
 import { HttpError } from "../../middlewares/errorHandler";
 import { uploadBufferToCloudinary } from "../../config/cloudinary";
 import { ApplicationStatus, LanguageLevel } from "@prisma/client";
-import { CreateApplicationInput } from "./applications.schema";
+import { CreateApplicationInput, UpdateApplicationInput } from "./applications.schema";
 
 export async function createApplication(input: CreateApplicationInput, userId: number) {
   const job = await prisma.jobPosting.findUnique({ where: { id: input.jobPostingId } });
@@ -57,6 +57,70 @@ export async function createApplication(input: CreateApplicationInput, userId: n
   });
 }
 
+export async function updateApplication(applicationId: number, userId: number, input: UpdateApplicationInput) {
+  const application = await prisma.jobApplication.findUnique({ where: { id: applicationId } });
+  if (!application || application.userId !== userId) {
+    throw new HttpError(404, "Application not found");
+  }
+
+  if (application.status !== "RETURNED") {
+    throw new HttpError(400, "Only applications returned for revision can be edited");
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    throw new HttpError(404, "User not found");
+  }
+
+  const fullName = input.fullName ?? user.name;
+  const email = input.email ?? user.email;
+  const phone = input.phone ?? user.phone;
+
+  if (!phone) {
+    throw new HttpError(400, "Phone number is required");
+  }
+
+  await prisma.$transaction([
+    prisma.applicationEducation.deleteMany({ where: { applicationId } }),
+    prisma.applicationWorkExperience.deleteMany({ where: { applicationId } }),
+    prisma.applicationLanguage.deleteMany({ where: { applicationId } }),
+    prisma.applicationReference.deleteMany({ where: { applicationId } }),
+  ]);
+
+  return prisma.jobApplication.update({
+    where: { id: applicationId },
+    data: {
+      fullName,
+      email,
+      phone,
+      status: "PENDING",
+      birthDate: input.birthDate ? new Date(input.birthDate) : undefined,
+      address: input.address ?? user.address ?? undefined,
+      expectedSalary: input.expectedSalary,
+      availableStartDate: input.availableStartDate ? new Date(input.availableStartDate) : undefined,
+      education: { create: input.education ?? [] },
+      experience: {
+        create: (input.experience ?? []).map((exp) => ({
+          ...exp,
+          startDate: exp.startDate ? new Date(exp.startDate) : undefined,
+          endDate: exp.endDate ? new Date(exp.endDate) : undefined,
+        })),
+      },
+      languages: {
+        create: (input.languages ?? []).map((lang) => ({
+          language: lang.language,
+          listening: (lang.listening ?? "NONE") as LanguageLevel,
+          speaking: (lang.speaking ?? "NONE") as LanguageLevel,
+          reading: (lang.reading ?? "NONE") as LanguageLevel,
+          writing: (lang.writing ?? "NONE") as LanguageLevel,
+        })),
+      },
+      references: { create: input.references ?? [] },
+    },
+    include: { education: true, experience: true, languages: true, references: true },
+  });
+}
+
 export async function uploadAttachments(
   applicationId: number,
   files: { resume?: Express.Multer.File[]; photo?: Express.Multer.File[] },
@@ -80,7 +144,7 @@ export async function uploadAttachments(
         applicationId,
         fileName: file.originalname,
         fileUrl: url,
-        fileType: "resume",
+        fileType: file.mimetype,
       },
     });
   }
@@ -97,17 +161,26 @@ export async function uploadAttachments(
 export interface ListApplicationsFilter {
   jobPostingId?: number;
   status?: ApplicationStatus;
+  page: number;
+  pageSize: number;
 }
 
 export async function listApplications(filter: ListApplicationsFilter) {
-  return prisma.jobApplication.findMany({
-    where: {
-      jobPostingId: filter.jobPostingId,
-      status: filter.status,
-    },
-    include: { jobPosting: { select: { id: true, title: true } }, attachments: true },
-    orderBy: { createdAt: "desc" },
-  });
+  const { jobPostingId, status, page, pageSize } = filter;
+  const where = { jobPostingId, status };
+
+  const [data, total] = await Promise.all([
+    prisma.jobApplication.findMany({
+      where,
+      include: { jobPosting: { select: { id: true, title: true } }, attachments: true },
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.jobApplication.count({ where }),
+  ]);
+
+  return { data, total, page, pageSize, totalPages: Math.max(1, Math.ceil(total / pageSize)) };
 }
 
 export async function listMyApplications(userId: number) {
@@ -157,6 +230,11 @@ export async function getApplicationById(id: number) {
 export async function updateApplicationStatus(id: number, status: ApplicationStatus) {
   await getApplicationById(id);
   return prisma.jobApplication.update({ where: { id }, data: { status } });
+}
+
+export async function deleteApplication(id: number) {
+  await getApplicationById(id);
+  await prisma.jobApplication.delete({ where: { id } });
 }
 
 export async function addApplicationNote(applicationId: number, userId: number, note: string) {

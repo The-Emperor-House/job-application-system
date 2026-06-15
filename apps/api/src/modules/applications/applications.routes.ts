@@ -5,9 +5,11 @@ import {
   listApplicationsHandler,
   getApplicationHandler,
   updateStatusHandler,
+  deleteApplicationHandler,
   addNoteHandler,
   listMyApplicationsHandler,
   getMyApplicationHandler,
+  updateMyApplicationHandler,
 } from "./applications.controller";
 import { authenticateToken, authorizeRole } from "../../middlewares/auth";
 import { uploadApplicationFiles } from "../../middlewares/upload";
@@ -26,11 +28,13 @@ router.post("/:id/attachments", authenticateToken, uploadApplicationFiles, uploa
 // Authenticated applicant — view own application history
 router.get("/my", authenticateToken, listMyApplicationsHandler);
 router.get("/my/:id", authenticateToken, getMyApplicationHandler);
+router.patch("/my/:id", authenticateToken, updateMyApplicationHandler);
 
 // Admin/HR/Super Admin — review applications
 router.get("/", ...requireStaff, listApplicationsHandler);
 router.get("/:id", ...requireStaff, getApplicationHandler);
 router.patch("/:id/status", ...requireStaff, updateStatusHandler);
+router.delete("/:id", ...requireStaff, deleteApplicationHandler);
 router.post("/:id/notes", ...requireStaff, addNoteHandler);
 
 export default router;
