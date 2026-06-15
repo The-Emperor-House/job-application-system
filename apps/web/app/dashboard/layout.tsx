@@ -1,0 +1,61 @@
+import NavLink from "@/components/NavLink";
+import { redirect } from "next/navigation";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
+import { ApiError, authApi } from "@/lib/api";
+import { AuthUser } from "@/lib/types";
+import LogoutButton from "@/components/LogoutButton";
+
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  let user: AuthUser;
+  try {
+    user = await authApi<AuthUser>("/api/auth/me");
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 401) {
+      redirect("/login");
+    }
+    throw err;
+  }
+
+  if (user.role === "APPLICANT") {
+    redirect("/account");
+  }
+
+  return (
+    <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <AppBar position="static" color="default" elevation={0} sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Toolbar sx={{ maxWidth: 1024, width: "100%", mx: "auto" }}>
+          <Stack direction="row" spacing={3} sx={{ alignItems: "center", flex: 1 }}>
+            <Typography component={NavLink} href="/dashboard" sx={{ fontWeight: 700, textDecoration: "none", color: "inherit" }}>
+              HR Dashboard
+            </Typography>
+            <Typography component={NavLink} href="/dashboard/jobs" variant="body2" color="text.secondary" sx={{ textDecoration: "none" }}>
+              Job Postings
+            </Typography>
+            <Typography component={NavLink} href="/dashboard/applications" variant="body2" color="text.secondary" sx={{ textDecoration: "none" }}>
+              Applications
+            </Typography>
+            {user.role === "SUPER_ADMIN" && (
+              <Typography component={NavLink} href="/dashboard/users" variant="body2" color="text.secondary" sx={{ textDecoration: "none" }}>
+                Users
+              </Typography>
+            )}
+          </Stack>
+          <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+            <Typography variant="body2" color="text.secondary">
+              {user.name} ({user.role})
+            </Typography>
+            <LogoutButton />
+          </Stack>
+        </Toolbar>
+      </AppBar>
+      <Container component="main" maxWidth="lg" sx={{ flex: 1, py: 4 }}>
+        {children}
+      </Container>
+    </Box>
+  );
+}

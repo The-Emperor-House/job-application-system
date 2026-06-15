@@ -1,0 +1,232 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  HR
+  APPLICANT
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+}
+
+enum DocumentCategory {
+  RESUME
+  PORTFOLIO
+  CERTIFICATE
+  OTHER
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWING
+  INTERVIEW
+  OFFERED
+  REJECTED
+  HIRED
+}
+
+enum LanguageLevel {
+  NONE
+  BASIC
+  INTERMEDIATE
+  ADVANCED
+  FLUENT
+}
+
+model User {
+  id            Int          @id @default(autoincrement())
+  email         String       @unique
+  passwordHash  String
+  name          String
+  role          UserRole     @default(HR)
+  phone         String?
+  address       String?      @db.Text
+  avatarUrl     String?
+  authProvider  AuthProvider @default(LOCAL)
+  googleId      String?      @unique
+  emailVerified Boolean      @default(false)
+  otpCode       String?
+  otpExpiresAt  DateTime?
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  notes        ApplicationNote[]
+  documents    UserDocument[]
+  applications JobApplication[]
+
+  @@map("users")
+}
+
+model UserDocument {
+  id         Int              @id @default(autoincrement())
+  userId     Int
+  category   DocumentCategory @default(OTHER)
+  fileName   String
+  fileUrl    String
+  fileType   String
+  uploadedAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_documents")
+  @@index([userId])
+}
+
+model JobPosting {
+  id             Int            @id @default(autoincrement())
+  title          String
+  department     String?
+  description    String         @db.Text
+  requirements   String?        @db.Text
+  location       String?
+  employmentType EmploymentType @default(FULL_TIME)
+  salaryRange    String?
+  status         JobStatus      @default(OPEN)
+  closingDate    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  applications JobApplication[]
+
+  @@map("job_postings")
+}
+
+model JobApplication {
+  id                  Int               @id @default(autoincrement())
+  jobPostingId        Int
+  userId              Int?
+  fullName            String
+  email               String
+  phone               String
+  birthDate           DateTime?
+  address             String?           @db.Text
+  expectedSalary      String?
+  availableStartDate  DateTime?
+  photoUrl            String?
+  status              ApplicationStatus @default(PENDING)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  jobPosting JobPosting @relation(fields: [jobPostingId], references: [id])
+  user          User?                       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  education     ApplicationEducation[]
+  experience    ApplicationWorkExperience[]
+  languages     ApplicationLanguage[]
+  references    ApplicationReference[]
+  attachments   ApplicationAttachment[]
+  notes         ApplicationNote[]
+
+  @@map("job_applications")
+  @@index([jobPostingId])
+  @@index([userId])
+}
+
+model ApplicationEducation {
+  id             Int    @id @default(autoincrement())
+  applicationId  Int
+  level          String
+  institution    String
+  major          String?
+  graduationYear String?
+  gpa            String?
+
+  application JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("application_education")
+  @@index([applicationId])
+}
+
+model ApplicationWorkExperience {
+  id               Int       @id @default(autoincrement())
+  applicationId    Int
+  company          String
+  position         String
+  startDate        DateTime?
+  endDate          DateTime?
+  responsibilities String?   @db.Text
+
+  application JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("application_work_experience")
+  @@index([applicationId])
+}
+
+model ApplicationLanguage {
+  id            Int           @id @default(autoincrement())
+  applicationId Int
+  language      String
+  listening     LanguageLevel @default(NONE)
+  speaking      LanguageLevel @default(NONE)
+  reading       LanguageLevel @default(NONE)
+  writing       LanguageLevel @default(NONE)
+
+  application JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("application_languages")
+  @@index([applicationId])
+}
+
+model ApplicationReference {
+  id            Int     @id @default(autoincrement())
+  applicationId Int
+  name          String
+  relationship  String?
+  phone         String?
+  company       String?
+
+  application JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("application_references")
+  @@index([applicationId])
+}
+
+model ApplicationAttachment {
+  id            Int      @id @default(autoincrement())
+  applicationId Int
+  fileName      String
+  fileUrl       String
+  fileType      String
+  uploadedAt    DateTime @default(now())
+
+  application JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("application_attachments")
+  @@index([applicationId])
+}
+
+model ApplicationNote {
+  id            Int      @id @default(autoincrement())
+  applicationId Int
+  userId        Int
+  note          String   @db.Text
+  createdAt     DateTime @default(now())
+
+  application JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  user        User            @relation(fields: [userId], references: [id])
+
+  @@map("application_notes")
+  @@index([applicationId])
+}
