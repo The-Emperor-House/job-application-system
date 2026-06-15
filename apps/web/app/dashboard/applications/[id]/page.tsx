@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 import Paper from "@mui/material/Paper";
+import Chip from "@mui/material/Chip";
 import { authApi } from "@/lib/api";
 import { JobApplication } from "@/lib/types";
 import StatusSelector from "../StatusSelector";
@@ -164,6 +165,23 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
                     <Link key={a.id} href={a.fileUrl} target="_blank" rel="noreferrer" style={{ fontSize: 14, color: "var(--mui-palette-primary-main)" }}>
                       {a.fileName}
                     </Link>
+                  ))}
+                </Stack>
+              ) : (
+                <EmptyText />
+              )}
+            </Section>
+
+            <Section title="Applicant Documents">
+              {app.user?.documents.length ? (
+                <Stack spacing={0.5}>
+                  {app.user.documents.map((d) => (
+                    <Box key={d.id} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Chip label={d.category} size="small" />
+                      <Link href={d.fileUrl} target="_blank" rel="noreferrer" style={{ fontSize: 14, color: "var(--mui-palette-primary-main)" }}>
+                        {d.fileName}
+                      </Link>
+                    </Box>
                   ))}
                 </Stack>
               ) : (

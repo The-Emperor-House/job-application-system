@@ -91,6 +91,7 @@ export interface JobApplication {
   references?: ApplicationReference[];
   attachments?: ApplicationAttachment[];
   notes?: ApplicationNote[];
+  user?: { id: number; name: string; email: string; documents: UserDocument[] } | null;
 }
 
 export interface AuthUser {

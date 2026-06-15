@@ -9,6 +9,7 @@ import { authApi } from "@/lib/api";
 import { AuthUser } from "@/lib/types";
 import RoleSelector from "./RoleSelector";
 import ActiveToggle from "./ActiveToggle";
+import ResetPasswordButton from "./ResetPasswordButton";
 
 export default async function UsersPage() {
   const users = await authApi<AuthUser[]>("/api/users");
@@ -28,6 +29,7 @@ export default async function UsersPage() {
               <TableCell>Role</TableCell>
               <TableCell>Active</TableCell>
               <TableCell>Joined</TableCell>
+              <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -42,6 +44,9 @@ export default async function UsersPage() {
                   <ActiveToggle userId={user.id} isActive={user.isActive ?? true} />
                 </TableCell>
                 <TableCell>{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}</TableCell>
+                <TableCell>
+                  <ResetPasswordButton userId={user.id} name={user.name} />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
